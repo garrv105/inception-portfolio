@@ -248,6 +248,9 @@ body { overflow-x: hidden; }
   transition: all 0.1s ease;
 }
 .mode-night #day-cursor, .mode-night #day-cursor-ring { display: none; }
+/* Night cursor — hidden in day mode, visible in night mode */
+#cursor-dot, #cursor-ring { display: none; }
+.mode-night #cursor-dot, .mode-night #cursor-ring { display: block; }
 
 /* ═══════════════════════════════════════════════════════════
    NAV
