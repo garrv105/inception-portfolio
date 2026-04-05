@@ -269,6 +269,12 @@
   // Expose for brain.js
   window.__triggerProfileReveal = openProfile;
 
+  // Reset flag on night world re-boot so zoom can re-trigger
+  document.addEventListener('resetProfileOpen', () => {
+    profileIsOpen  = false;
+    avatarStarted  = false;
+  });
+
   // Also: clicking hero canvas background (not nodes) = open profile
   const brainCanvas = document.getElementById('brain-canvas');
   if (brainCanvas) {
@@ -701,7 +707,7 @@ window.__nightBootMain = function () {
     setTimeout(() => { l.style.opacity = '1'; }, 500);
   });
 
-  // 6. Profile overlay reset
+  // 6. Profile overlay reset — also reset profileIsOpen flag
   const profileOverlay = document.getElementById('profile-overlay');
   if (profileOverlay) {
     profileOverlay.classList.add('hidden');
@@ -709,4 +715,14 @@ window.__nightBootMain = function () {
     const modal = document.getElementById('profile-modal');
     if (modal) modal.classList.remove('active');
   }
+  // Reset avatar canvas + profile guard so zoom can re-trigger
+  window.__avatarStarted = false;
+  if (window.__resetProfileOpen) window.__resetProfileOpen();
+};
+
+// Expose profileIsOpen reset for brain.js re-use
+window.__resetProfileOpen = function () {
+  // Force the guard open so openProfile() can fire again
+  const ev = new CustomEvent('resetProfileOpen');
+  document.dispatchEvent(ev);
 };
