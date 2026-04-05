@@ -320,7 +320,8 @@
     setupSmoothScroll();
     setupDayScrollReveal();
     if (window.DayScene) window.DayScene.start();
-    initVoice(); // start voice engine AFTER page is fully ready
+    if (window.DayLive) window.DayLive.init(); // start live command-center animations
+    initVoice();
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -438,90 +439,87 @@
     tl.to(transLayer, { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 1.5);
   }
 
-  // "Descend" — white solar flare: blinding overexposure, then contracts to a point and clears
+  // "Descend" — HORIZONTAL SCAN WIPE
+  // A solid cyan-white scan line races from left to right across the screen,
+  // wiping the night world away. Then the day world snaps in clean.
+  // Completely different feel from the Arise particle implosion.
   function enterDayMode() {
     if (isTransitioning || currentMode === 'day') return;
     isTransitioning = true;
     showVoiceFeedback('descend');
-    initTransCanvas();
-    if (!transScene) { completeTransition('day'); return; }
 
+    // No Three.js canvas needed — pure CSS + GSAP wipe
     transLayer.classList.add('active');
-    gsap.set(transLayer, { opacity: 1 });
+    gsap.set(transLayer, { opacity: 1, backgroundColor: 'transparent' });
 
-    // Burst of white rays from center
-    const RAYS = 800;
-    const rPos  = new Float32Array(RAYS * 3);
-    const rVel  = new Float32Array(RAYS * 3);
-    const rCols = new Float32Array(RAYS * 3);
-
-    for (let i = 0; i < RAYS; i++) {
-      rPos[i*3] = rPos[i*3+1] = rPos[i*3+2] = 0;
-      const ang = Math.random() * Math.PI * 2;
-      const el  = Math.acos(2 * Math.random() - 1);
-      const spd = 3 + Math.random() * 5;
-      rVel[i*3]   = Math.sin(el) * Math.cos(ang) * spd;
-      rVel[i*3+1] = Math.sin(el) * Math.sin(ang) * spd;
-      rVel[i*3+2] = Math.cos(el) * spd;
-      // White-blue gradient
-      const t = Math.random();
-      rCols[i*3]   = 0.8 + t * 0.2;
-      rCols[i*3+1] = 0.85 + t * 0.15;
-      rCols[i*3+2] = 1.0;
+    // Build the scan-wipe overlay: a set of horizontal stripes that
+    // fly in from the left at staggered speeds, covering the screen,
+    // then retracting right revealing the day world
+    const STRIPES = 12;
+    const stripeEls = [];
+    for (let i = 0; i < STRIPES; i++) {
+      const el = document.createElement('div');
+      const h  = 100 / STRIPES;
+      const isCyanStripe = i % 3 === 0;
+      Object.assign(el.style, {
+        position: 'absolute',
+        left: '-100%',
+        top:  `${i * h}%`,
+        width: '100%',
+        height: `${h + 0.3}%`,
+        background: isCyanStripe
+          ? 'linear-gradient(90deg, rgba(37,99,235,0.95), rgba(0,229,255,0.9))'
+          : 'linear-gradient(90deg, rgba(15,23,42,0.98), rgba(37,99,235,0.85))',
+        zIndex: 2,
+      });
+      transLayer.appendChild(el);
+      stripeEls.push(el);
     }
-    const rGeo = new THREE.BufferGeometry();
-    rGeo.setAttribute('position', new THREE.BufferAttribute(rPos, 3));
-    rGeo.setAttribute('color',    new THREE.BufferAttribute(rCols, 3));
-    const rMat = new THREE.PointsMaterial({ size: 1.2, vertexColors: true, transparent: true, opacity: 0, sizeAttenuation: true });
-    const rays  = new THREE.Points(rGeo, rMat);
-    transScene.add(rays);
 
-    let tFrame2 = 0;
-    function animDescend() {
-      transAF = requestAnimationFrame(animDescend);
-      tFrame2++;
-      const t = tFrame2 / 60;
-      const rArr = rays.geometry.attributes.position.array;
-      for (let i = 0; i < RAYS; i++) {
-        rArr[i*3]   += rVel[i*3];
-        rArr[i*3+1] += rVel[i*3+1];
-        rArr[i*3+2] += rVel[i*3+2];
-        rVel[i*3]   *= 1.04;
-        rVel[i*3+1] *= 1.04;
-        rVel[i*3+2] *= 1.04;
-      }
-      rays.geometry.attributes.position.needsUpdate = true;
-      if (t < 0.25)     rMat.opacity = t / 0.25 * 0.95;
-      else if (t < 0.6) rMat.opacity = 0.95;
-      else              rMat.opacity = Math.max(0, 0.95 - (t - 0.6) * 2.5);
-      transRenderer.render(transScene, transCamera);
-    }
-    animDescend();
-
-    // White flash overlay
-    const overlay = document.createElement('div');
-    Object.assign(overlay.style, {
-      position:'absolute', inset:0, background:'#fff',
-      opacity:'0', zIndex:'8', pointerEvents:'none'
+    // Bright leading edge that sweeps right
+    const edgeEl = document.createElement('div');
+    Object.assign(edgeEl.style, {
+      position: 'absolute', top: 0, bottom: 0,
+      width: '3px',
+      background: 'linear-gradient(to bottom, transparent, #00e5ff, #fff, #00e5ff, transparent)',
+      left: '-3px', zIndex: 5, boxShadow: '0 0 20px rgba(0,229,255,0.9)',
     });
-    transLayer.appendChild(overlay);
+    transLayer.appendChild(edgeEl);
 
     transText.className = 'day-text';
-    gsap.set(transText, { opacity: 0, scale: 1.5, y: 0 });
+    gsap.set(transText, { opacity: 0, x: -40 });
     transText.textContent = 'D E S C E N D';
 
-    const tl2 = gsap.timeline({ onComplete: () => {
-      cancelAnimationFrame(transAF);
-      transScene.remove(rays);
-      rGeo.dispose(); rMat.dispose();
-      overlay.remove();
+    const tl = gsap.timeline({ onComplete: () => {
+      stripeEls.forEach(el => el.remove());
+      edgeEl.remove();
       completeTransition('day');
     }});
-    tl2.to(overlay,    { opacity: 0.7, duration: 0.2, ease: 'power3.in' }, 0);
-    tl2.to(transText,  { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out' }, 0.15);
-    tl2.to(overlay,    { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0.45);
-    tl2.to(transText,  { opacity: 0, scale: 0.7, y: 20, duration: 0.35, ease: 'power2.in' }, 0.9);
-    tl2.to(transLayer, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 1.1);
+
+    // Phase 1: stripes slam in from left (0→0.5s)
+    tl.to(stripeEls, {
+      left: '0%', duration: 0.35,
+      stagger: { each: 0.025, from: 'start' },
+      ease: 'power4.in',
+    }, 0);
+
+    // Edge sweeps across (0→0.5s)
+    tl.to(edgeEl, { left: '100%', duration: 0.5, ease: 'power2.inOut' }, 0);
+
+    // Text fades in from left
+    tl.to(transText, { opacity: 1, x: 0, duration: 0.3, ease: 'power2.out' }, 0.15);
+
+    // Brief hold
+    tl.to({}, { duration: 0.25 });
+
+    // Phase 2: stripes retract right (reveal day world)
+    tl.to(transText, { opacity: 0, x: 40, duration: 0.2, ease: 'power2.in' }, '+=0');
+    tl.to(stripeEls, {
+      left: '100%', duration: 0.35,
+      stagger: { each: 0.02, from: 'end' },
+      ease: 'power4.out',
+    }, '-=0.15');
+    tl.to(transLayer, { opacity: 0, duration: 0.2 }, '-=0.1');
   }
 
   // ── Shared: swap worlds after transition finishes ─────────
@@ -536,6 +534,7 @@
       hideEl(voiceBtn());
       showEl(returnBtn());
       if (window.DayScene) window.DayScene.stop();
+      bootNightWorld(); // lazy-init the quantum brain only now
     } else {
       worldNight?.classList.add('hidden');
       worldDay?.classList.remove('hidden');
@@ -583,8 +582,11 @@
   let pendingCommand = null; // set BEFORE stop(), checked in onend
 
   // Phonetic fuzzy matches — handles common mis-recognitions
-  const ARISE_WORDS   = ['arise','a rise','arize','a rize','arise!','a-rise','the rise','araise','rise'];
-  const DESCEND_WORDS = ['descend','descent','de scend','dissend','the send','descends','desend','de-scend'];
+  // Mutable — can be updated live from the debug panel command editor
+  let ARISE_WORDS   = ['arise','a rise','arize','a rize','arise!','a-rise','the rise','araise','rise'];
+  let DESCEND_WORDS = ['descend','descent','de scend','dissend','the send','descends','desend','de-scend'];
+  const ARISE_DEFAULTS   = [...ARISE_WORDS];
+  const DESCEND_DEFAULTS = [...DESCEND_WORDS];
 
   function matchesWord(transcript, wordList) {
     return wordList.some(w => transcript.includes(w));
@@ -877,6 +879,7 @@
     if (!panel) return;
     if (dbgOpen) {
       panel.classList.remove('hidden');
+      initCommandEditor();
       dbgLog('info', 'Debug panel opened');
       startWaveform();
     } else {
@@ -1130,11 +1133,101 @@
     log:        dbgLog,
   };
 
+
+  // ═══════════════════════════════════════════════════════════
+  //  COMMAND PHRASE EDITOR
+  //  Users can type custom trigger words in the debug panel.
+  //  Changes take effect immediately — no code edit needed.
+  // ═══════════════════════════════════════════════════════════
+  function initCommandEditor() {
+    const ariseInput   = document.getElementById('vd-arise-input');
+    const descendInput = document.getElementById('vd-descend-input');
+    const hint         = document.getElementById('vd-cmd-hint');
+    if (!ariseInput || !descendInput) return;
+
+    function saveCommand(cmd, raw) {
+      const word = raw.trim().toLowerCase();
+      if (!word) return;
+      // Build variants: exact + with punctuation + common mishears
+      const variants = [word, word + '!', word.replace(/\s+/g, ' ')];
+      // Add phonetic first-word match
+      if (word.split(' ').length === 1) variants.push('the ' + word);
+
+      if (cmd === 'arise') {
+        ARISE_WORDS = [...variants, ...ARISE_DEFAULTS.filter(w => !variants.includes(w)).slice(0, 3)];
+      } else {
+        DESCEND_WORDS = [...variants, ...DESCEND_DEFAULTS.filter(w => !variants.includes(w)).slice(0, 3)];
+      }
+
+      if (hint) {
+        hint.textContent = `✓ "${word}" set as ${cmd.toUpperCase()} trigger`;
+        hint.style.color = '#00ff88';
+        setTimeout(() => {
+          hint.textContent = 'Type a word and press SAVE or Enter';
+          hint.style.color = '';
+        }, 2500);
+      }
+      if (window.__voiceDebug) window.__voiceDebug.log('cmd', `Custom trigger set — ${cmd.toUpperCase()}: "${word}"`);
+    }
+
+    // SAVE buttons
+    document.querySelectorAll('.vd-cmd-save').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmd   = btn.dataset.cmd;
+        const input = document.getElementById(`vd-${cmd}-input`);
+        if (input) saveCommand(cmd, input.value);
+      });
+    });
+
+    // Enter key in inputs
+    [ariseInput, descendInput].forEach(input => {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          const cmd = input.id === 'vd-arise-input' ? 'arise' : 'descend';
+          saveCommand(cmd, input.value);
+        }
+      });
+    });
+
+    // Reset buttons
+    document.querySelectorAll('.vd-cmd-reset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.dataset.cmd;
+        if (cmd === 'arise')   { ARISE_WORDS   = [...ARISE_DEFAULTS];   ariseInput.value   = 'arise'; }
+        if (cmd === 'descend') { DESCEND_WORDS = [...DESCEND_DEFAULTS]; descendInput.value = 'descend'; }
+        if (hint) { hint.textContent = 'Reset to defaults'; hint.style.color = '#fbbf24'; setTimeout(() => { hint.textContent = 'Type a word and press SAVE or Enter'; hint.style.color = ''; }, 2000); }
+        if (window.__voiceDebug) window.__voiceDebug.log('info', `${cmd.toUpperCase()} reset to defaults`);
+      });
+    });
+  }
+
   // ═══════════════════════════════════════════════════════════
   //  BOOT
   // ═══════════════════════════════════════════════════════════
+  let nightWorldBooted = false;
+
+  function bootNightWorld() {
+    if (nightWorldBooted) return;
+    nightWorldBooted = true;
+    // brain.js already loaded — trigger its assembly sequence
+    // by dispatching a synthetic loader-gone event the brain watches
+    const loader = document.getElementById('loader');
+    if (!loader) {
+      // Trigger brain assembly directly
+      if (window.__brainStartAssembly) window.__brainStartAssembly();
+    }
+    // Run quantum brain main.js boot sequence (boot HUD, profile, terminal)
+    // main.js watches for #loader to be gone — fake that now
+    const fakeLoader = document.createElement('div');
+    fakeLoader.id = 'loader';
+    fakeLoader.classList.add('gone');
+    fakeLoader.style.display = 'none';
+    document.body.appendChild(fakeLoader);
+    setTimeout(() => fakeLoader.remove(), 100);
+  }
+
   function init() {
-    // Ensure correct initial state
+    // Ensure correct initial state — night world stays hidden until Arise
     worldNight?.classList.add('hidden');
     worldDay?.classList.remove('hidden');
     showEl(voiceBtn());
