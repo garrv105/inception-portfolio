@@ -1096,3 +1096,54 @@ body {
   .skill-nodes-grid { grid-template-columns: 1fr; }
   .pm-tabs .pm-tab { padding: 0.5rem 0.7rem; }
 }
+
+/* ── QNN Assembly Progress Bar ─────────────────────────────── */
+.qnn-progress-wrap {
+  position: absolute;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  opacity: 0;
+  display: none;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.qnn-progress-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(2, 6, 20, 0.72);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 40px;
+  padding: 0.45rem 1.1rem;
+  backdrop-filter: blur(12px);
+}
+.qnn-progress-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  color: rgba(0, 229, 255, 0.6);
+  white-space: nowrap;
+}
+.qnn-progress-track {
+  width: 160px;
+  height: 3px;
+  background: rgba(0, 229, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.qnn-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #2563eb, #00e5ff, #9d4edd);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  transition: width 0.1s linear;
+}
+.qnn-progress-pct {
+  font-size: 0.58rem;
+  color: rgba(0, 229, 255, 0.7);
+  min-width: 32px;
+  text-align: right;
+  letter-spacing: 0.06em;
+}
