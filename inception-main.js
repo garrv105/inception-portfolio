@@ -1209,21 +1209,19 @@
   function bootNightWorld() {
     if (nightWorldBooted) return;
     nightWorldBooted = true;
-    // brain.js already loaded — trigger its assembly sequence
-    // by dispatching a synthetic loader-gone event the brain watches
-    const loader = document.getElementById('loader');
-    if (!loader) {
-      // Trigger brain assembly directly
-      if (window.__brainStartAssembly) window.__brainStartAssembly();
-    }
-    // Run quantum brain main.js boot sequence (boot HUD, profile, terminal)
-    // main.js watches for #loader to be gone — fake that now
-    const fakeLoader = document.createElement('div');
-    fakeLoader.id = 'loader';
-    fakeLoader.classList.add('gone');
-    fakeLoader.style.display = 'none';
-    document.body.appendChild(fakeLoader);
-    setTimeout(() => fakeLoader.remove(), 100);
+
+    // Small delay so the Arise transition fully completes first
+    // then boot the night world exactly like the standalone portfolio
+    setTimeout(() => {
+      // 1. Reset + restart the QNN brain assembly sequence
+      if (window.__nightBootBrain) {
+        window.__nightBootBrain();
+      }
+      // 2. Boot HUD + canvases + scroll reveals + profile overlay
+      if (window.__nightBootMain) {
+        window.__nightBootMain();
+      }
+    }, 400);
   }
 
   function init() {
