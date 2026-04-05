@@ -38,13 +38,67 @@
   document.body.style.overflow = 'hidden';
 })();
 
-// ── CUSTOM CURSOR ─────────────────────────────────────────
+// ── CUSTOM CURSOR (night world) ───────────────────────────
 (function () {
   const dot  = document.getElementById('cursor-dot');
   const ring = document.getElementById('cursor-ring');
   if (!dot || !ring) return;
   let dx = -200, dy = -200, rx = -200, ry = -200;
 
+  // ── State colours ──────────────────────────────────────
+  // default: cyan   |  hover: pink/magenta  |  click: white flash
+  const C_DEFAULT = '#00e5ff';
+  const C_HOVER   = '#ff2d87';
+  const C_BRAIN   = '#a855f7'; // purple on brain canvas
+
+  function setCursorState(state) {
+    if (state === 'hover') {
+      dot.style.background    = C_HOVER;
+      dot.style.boxShadow     = `0 0 8px ${C_HOVER}, 0 0 20px ${C_HOVER}44`;
+      ring.style.borderColor  = `${C_HOVER}99`;
+      ring.style.width        = '38px';
+      ring.style.height       = '38px';
+      ring.style.borderWidth  = '1.5px';
+    } else if (state === 'brain') {
+      dot.style.background    = C_BRAIN;
+      dot.style.boxShadow     = `0 0 10px ${C_BRAIN}, 0 0 24px ${C_BRAIN}66`;
+      ring.style.borderColor  = `${C_BRAIN}aa`;
+      ring.style.width        = '44px';
+      ring.style.height       = '44px';
+      ring.style.borderWidth  = '1px';
+    } else {
+      dot.style.background    = C_DEFAULT;
+      dot.style.boxShadow     = `0 0 6px ${C_DEFAULT}`;
+      ring.style.borderColor  = 'rgba(0,229,255,0.5)';
+      ring.style.width        = '28px';
+      ring.style.height       = '28px';
+      ring.style.borderWidth  = '1px';
+    }
+  }
+
+  // ── Flash on click ─────────────────────────────────────
+  document.addEventListener('mousedown', () => {
+    dot.style.background  = '#fff';
+    dot.style.boxShadow   = '0 0 12px #fff, 0 0 30px #00e5ff';
+    ring.style.transform  = 'translate(-50%,-50%) scale(1.6)';
+    ring.style.opacity    = '0.4';
+  });
+  document.addEventListener('mouseup', () => {
+    ring.style.transform = 'translate(-50%,-50%) scale(1)';
+    ring.style.opacity   = '1';
+    setCursorState('default');
+  });
+
+  // ── Hover detection ────────────────────────────────────
+  document.addEventListener('mouseover', e => {
+    const t = e.target.closest('a, button, [role="button"], .zone-label, .pm-tab, .proj-link, .pm-close, .pm-btn, .nav-link, label[for]');
+    const brain = e.target.closest('#brain-canvas');
+    if (brain)      setCursorState('brain');
+    else if (t)     setCursorState('hover');
+    else            setCursorState('default');
+  });
+
+  // ── Position loop ──────────────────────────────────────
   document.addEventListener('mousemove', e => {
     dx = e.clientX; dy = e.clientY;
     dot.style.left = dx + 'px'; dot.style.top = dy + 'px';
@@ -54,6 +108,9 @@
     ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
     requestAnimationFrame(loop);
   })();
+
+  // Initialise default state
+  setCursorState('default');
 })();
 
 // ── NAV ───────────────────────────────────────────────────
