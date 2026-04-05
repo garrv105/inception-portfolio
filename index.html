@@ -107,6 +107,25 @@
       <div class="vd-log" id="vd-log"></div>
     </div>
 
+
+    <!-- Command phrase editor -->
+    <div class="vd-cmd-block">
+      <div class="vd-cell-label">COMMAND PHRASES — click to edit, Enter to save</div>
+      <div class="vd-cmd-row">
+        <span class="vd-cmd-badge arise-badge">ARISE</span>
+        <input id="vd-arise-input" class="vd-cmd-input" type="text" value="arise" spellcheck="false" autocomplete="off" placeholder="e.g. quantum, engage"/>
+        <button class="vd-cmd-save" data-cmd="arise">SAVE</button>
+        <button class="vd-cmd-reset" data-cmd="arise">↺</button>
+      </div>
+      <div class="vd-cmd-row">
+        <span class="vd-cmd-badge descend-badge">DESCEND</span>
+        <input id="vd-descend-input" class="vd-cmd-input" type="text" value="descend" spellcheck="false" autocomplete="off" placeholder="e.g. surface, return"/>
+        <button class="vd-cmd-save" data-cmd="descend">SAVE</button>
+        <button class="vd-cmd-reset" data-cmd="descend">↺</button>
+      </div>
+      <div class="vd-cmd-hint mono" id="vd-cmd-hint">Type a word and press SAVE or Enter</div>
+    </div>
+
     <!-- Keyboard hint -->
     <div class="vd-footer mono">Press <kbd>`</kbd> to toggle · Voice always active in background</div>
   </div>
@@ -171,91 +190,176 @@
   ══════════════════════════════════════════════════ -->
   <div id="world-day" class="world">
 
+    <!-- System Status Bar -->
+    <div class="sys-status-bar" id="sys-status-bar">
+      <div class="ssb-inner">
+        <span class="ssb-active"><span class="ssb-dot"></span> SYSTEM ACTIVE</span>
+        <span class="ssb-divider"></span>
+        <span class="ssb-item">Threat Level: <strong>MEDIUM</strong></span>
+        <span class="ssb-divider"></span>
+        <span class="ssb-item">AI Models Secured: <strong id="sb-models">847</strong></span>
+        <span class="ssb-divider"></span>
+        <span class="ssb-item">Monitored Endpoints: <strong id="sb-endpoints">12,400</strong></span>
+        <span class="ssb-divider"></span>
+        <span class="ssb-item">Uptime: <strong>99.98%</strong></span>
+        <span class="ssb-divider"></span>
+        <span class="ssb-realtime" id="sb-realtime">REAL-TIME</span>
+      </div>
+    </div>
+
     <!-- Day Hero -->
     <section class="day-hero" id="day-hero">
       <canvas id="day-canvas"></canvas>
-      <div class="day-hero-grid"></div>
 
-      <!-- Split identity reveal line -->
-      <div class="day-split-line" id="day-split-line"></div>
+      <!-- Globe overlay: metrics panel (bottom-left) -->
+      <div class="globe-metrics" id="globe-metrics">
+        <div class="gm-row">
+          <span class="gm-dot gm-dot--red"></span>
+          <span class="gm-label">ACTIVE THREATS</span>
+          <span class="gm-val" id="th-threats">9</span>
+          <span class="gm-arrow gm-arrow--up">&#8593;</span>
+        </div>
+        <div class="gm-row">
+          <span class="gm-dot gm-dot--blue"></span>
+          <span class="gm-label">SYSTEMS MONITORED</span>
+          <span class="gm-val">12,400</span>
+        </div>
+        <div class="gm-row">
+          <span class="gm-dot gm-dot--green"></span>
+          <span class="gm-label">THREATS NEUTRALIZED</span>
+          <span class="gm-val" id="th-neutralized">1,247</span>
+        </div>
+        <div class="gm-row">
+          <span class="gm-dot gm-dot--cyan"></span>
+          <span class="gm-label">STATUS</span>
+          <span class="gm-val gm-val--live">LIVE</span>
+        </div>
+      </div>
 
+      <!-- Globe overlay: feed ticker (bottom of globe area) -->
+      <div class="feed-ticker" id="feed-ticker">
+        <div class="feed-track" id="feed-track"></div>
+      </div>
+
+      <!-- Right side hero content -->
       <div class="day-hero-content">
         <div class="day-hero-eyebrow">
-          <div class="eyebrow-dot"></div>
-          <span>AVAILABLE FOR CONSULTING</span>
+          <span class="eyebrow-dot"></span>
+          <span>SYSTEM ONLINE &middot; AI DEFENSE ACTIVE</span>
         </div>
-        <h1 class="day-hero-name">Garrv<br/><span class="name-accent">Sipani</span></h1>
+
+        <h1 class="day-hero-name">GARRV<br/><span class="name-accent">SIPANI</span></h1>
         <p class="day-hero-role">AI Cybersecurity Consultant</p>
-        <p class="day-hero-tagline">Building enterprise-grade security systems powered by AI.<br/>
-        NIST · ISO 27001 · Ethical Hacking · Cloud Defense.</p>
-        <div class="day-hero-cta">
-          <a href="#day-experience" class="btn-day-primary">View Experience →</a>
-          <a href="mailto:garrvsipani@gmail.com" class="btn-day-ghost">Contact</a>
+
+        <div class="hero-typing-wrap">
+          <span class="hero-typing-text" id="hero-typing"></span>
+          <span class="hero-typing-cursor">|</span>
         </div>
+
+        <blockquote class="day-hero-tagline">
+          &ldquo;When quantum threats emerge,<br/>intelligent defense is non-negotiable.&rdquo;
+        </blockquote>
+
+        <div class="day-hero-cta">
+          <a href="#day-experience" class="btn-day-primary">View Experience &rarr;</a>
+          <a href="#day-contact" class="btn-day-ghost">Secure Your Systems</a>
+        </div>
+
         <div class="day-hero-stats">
-          <div class="day-stat"><span class="ds-num">5+</span><span class="ds-label">Years</span></div>
+          <div class="day-stat"><span class="ds-num" data-count="5" data-suffix="+">0</span><span class="ds-label">Years</span></div>
           <div class="day-stat-div"></div>
-          <div class="day-stat"><span class="ds-num">3.95</span><span class="ds-label">GPA</span></div>
+          <div class="day-stat"><span class="ds-num" data-count="3.95">0</span><span class="ds-label">GPA</span></div>
           <div class="day-stat-div"></div>
-          <div class="day-stat"><span class="ds-num">11</span><span class="ds-label">Certs</span></div>
+          <div class="day-stat"><span class="ds-num" data-count="11">0</span><span class="ds-label">Certs</span></div>
           <div class="day-stat-div"></div>
-          <div class="day-stat"><span class="ds-num">2</span><span class="ds-label">Publications</span></div>
+          <div class="day-stat"><span class="ds-num" data-count="2">0</span><span class="ds-label">Papers</span></div>
         </div>
       </div>
 
       <!-- Voice hint -->
       <div class="day-voice-hint">
-        <span class="vhint-mic">🎤</span>
-        <span>Say <strong>"Arise"</strong> to enter Researcher mode</span>
+        <span class="vhint-mic">&#x1F3A4;</span>
+        <span>Say <strong>&ldquo;Arise&rdquo;</strong> to enter Researcher mode</span>
       </div>
     </section>
 
     <!-- About -->
-    <section class="day-section" id="day-about">
+    <section class="day-section day-section--about" id="day-about">
       <div class="section-container">
         <div class="section-label">01 / ABOUT</div>
         <h2 class="day-section-title">Background</h2>
         <div class="about-grid">
           <div class="about-text">
             <p>Security architect and researcher specializing in AI-augmented cybersecurity. Currently pursuing an MS in Cybersecurity at Johns Hopkins University (GPA 3.95) while serving as Head Cybersecurity Consultant at Quaranta, Australia.</p>
-            <p>My approach combines deep technical expertise in penetration testing and incident response with cutting-edge machine learning to build security systems that don't just detect threats — they anticipate them.</p>
+            <p>My approach combines deep technical expertise in penetration testing and incident response with cutting-edge machine learning to build security systems that don't just detect threats &mdash; they anticipate them.</p>
           </div>
           <div class="about-education">
             <div class="edu-card">
-              <div class="edu-year">2025–2026</div>
+              <div class="edu-year">2025&ndash;2026</div>
               <div class="edu-details">
                 <h3>MS Cybersecurity</h3>
-                <p>Johns Hopkins University · Baltimore, MD</p>
+                <p>Johns Hopkins University &middot; Baltimore, MD</p>
                 <span class="edu-gpa">GPA 3.95</span>
               </div>
             </div>
             <div class="edu-card">
-              <div class="edu-year">2022–2024</div>
+              <div class="edu-year">2022&ndash;2024</div>
               <div class="edu-details">
                 <h3>BSc Cybersecurity</h3>
-                <p>Macquarie University · Sydney, Australia</p>
+                <p>Macquarie University &middot; Sydney, Australia</p>
               </div>
             </div>
+          </div>
+        </div>
+        <!-- Core competencies -->
+        <h3 class="competencies-title">CORE COMPETENCIES</h3>
+        <div class="competencies-grid">
+          <div class="comp-box">
+            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Threat Detection</span>
+          </div>
+          <div class="comp-box">
+            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span>Incident Response</span>
+          </div>
+          <div class="comp-box">
+            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <span>Post-Quantum Crypto</span>
+          </div>
+          <div class="comp-box">
+            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            <span>AI/ML Security</span>
+          </div>
+          <div class="comp-box">
+            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span>Penetration Testing</span>
+          </div>
+          <div class="comp-box">
+            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            <span>Compliance &amp; Audit</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Experience -->
-    <section class="day-section" id="day-experience">
+    <section class="day-section day-section--exp" id="day-experience">
       <div class="section-container">
         <div class="section-label">02 / EXPERIENCE</div>
         <h2 class="day-section-title">Career Timeline</h2>
         <div class="timeline">
           <div class="timeline-item">
             <div class="timeline-marker"></div>
-            <div class="timeline-card">
+            <div class="timeline-card tl-card--current">
               <div class="timeline-header">
-                <div>
-                  <h3>Head Cybersecurity Consultant</h3>
-                  <p class="timeline-company">Quaranta · Australia</p>
+                <div class="tl-header-left">
+                  <div class="tl-company-logo">Q</div>
+                  <div>
+                    <h3>Head Cybersecurity Consultant</h3>
+                    <p class="timeline-company">Quaranta &middot; Australia</p>
+                  </div>
                 </div>
-                <div class="timeline-date">Apr 2023 – Present</div>
+                <span class="timeline-date">Apr 2023 &ndash; Present</span>
               </div>
               <ul>
                 <li>Strategic cybersecurity consulting using NIST &amp; ISO 27001 frameworks</li>
@@ -263,57 +367,82 @@
                 <li>Led incident recovery operations restoring enterprise operations</li>
                 <li>Linux security infrastructure + IPSec + Palo Alto firewall deployment</li>
               </ul>
+              <div class="tl-metrics">
+                <span class="tl-metric">NIST &amp; ISO 27001</span>
+                <span class="tl-metric">Enterprise Recovery</span>
+              </div>
             </div>
           </div>
           <div class="timeline-item">
             <div class="timeline-marker"></div>
             <div class="timeline-card">
               <div class="timeline-header">
-                <div>
-                  <h3>Cyber Security Analyst</h3>
-                  <p class="timeline-company">Buzzpenny Systems LLP · India</p>
+                <div class="tl-header-left">
+                  <div class="tl-company-logo">BP</div>
+                  <div>
+                    <h3>Cyber Security Analyst</h3>
+                    <p class="timeline-company">Buzzpenny Systems LLP &middot; India</p>
+                  </div>
                 </div>
-                <div class="timeline-date">Feb 2024 – Present</div>
+                <span class="timeline-date">Feb 2024 &ndash; Present</span>
               </div>
               <ul>
-                <li>Python automation — 40% faster threat detection, 2× threat response speed</li>
+                <li>Python automation &mdash; 40% faster threat detection, 2&times; threat response speed</li>
                 <li>Vulnerability assessments with Wireshark, Scapy, and OCI scanning</li>
                 <li>Reduced system downtime 20%+ via coordinated incident response</li>
               </ul>
+              <div class="tl-metrics">
+                <span class="tl-metric">40% faster detection</span>
+                <span class="tl-metric">20% less downtime</span>
+              </div>
             </div>
           </div>
           <div class="timeline-item">
             <div class="timeline-marker"></div>
             <div class="timeline-card">
               <div class="timeline-header">
-                <div>
-                  <h3>Cyber Security Consultant</h3>
-                  <p class="timeline-company">Quaranta.io · Sydney</p>
+                <div class="tl-header-left">
+                  <div class="tl-company-logo">Q</div>
+                  <div>
+                    <h3>Cyber Security Consultant</h3>
+                    <p class="timeline-company">Quaranta.io &middot; Sydney</p>
+                  </div>
                 </div>
-                <div class="timeline-date">Feb – Apr 2023</div>
+                <span class="timeline-date">Feb &ndash; Apr 2023</span>
               </div>
               <ul>
                 <li>Palo Alto Networks assessments + SIEM monitoring deployments</li>
                 <li>TensorFlow-based risk scoring for NIST/ISO-aligned remediation</li>
                 <li>STRIDE threat modeling with neural-network scenario simulation</li>
               </ul>
+              <div class="tl-metrics">
+                <span class="tl-metric">SIEM deployment</span>
+                <span class="tl-metric">ML risk scoring</span>
+              </div>
             </div>
           </div>
           <div class="timeline-item">
             <div class="timeline-marker"></div>
             <div class="timeline-card">
               <div class="timeline-header">
-                <div>
-                  <h3>Cyber Security Engineer</h3>
-                  <p class="timeline-company">Regent Digitech · India</p>
+                <div class="tl-header-left">
+                  <div class="tl-company-logo">RD</div>
+                  <div>
+                    <h3>Cyber Security Engineer</h3>
+                    <p class="timeline-company">Regent Digitech &middot; India</p>
+                  </div>
                 </div>
-                <div class="timeline-date">Jun – Dec 2021</div>
+                <span class="timeline-date">Jun &ndash; Dec 2021</span>
               </div>
               <ul>
                 <li>Palo Alto firewall deployment + Bash automation on OCI</li>
-                <li>Forensic Wireshark analysis — identified 3 critical incidents</li>
+                <li>Forensic Wireshark analysis &mdash; identified 3 critical incidents</li>
                 <li>Vulnerability management and compliance documentation</li>
               </ul>
+              <div class="tl-metrics">
+                <span class="tl-metric">3 critical incidents</span>
+                <span class="tl-metric">OCI automation</span>
+              </div>
             </div>
           </div>
         </div>
@@ -321,13 +450,16 @@
     </section>
 
     <!-- Skills -->
-    <section class="day-section" id="day-skills">
+    <section class="day-section day-section--skills" id="day-skills">
       <div class="section-container">
         <div class="section-label">03 / SKILLS</div>
         <h2 class="day-section-title">Technical Arsenal</h2>
         <div class="skills-grid">
           <div class="skill-category">
-            <div class="skill-cat-header"><span class="skill-cat-icon">🛡</span><h3>Security Operations</h3></div>
+            <div class="skill-cat-header">
+              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <h3>Security Operations</h3>
+            </div>
             <div class="skill-chips">
               <span class="chip">Penetration Testing</span>
               <span class="chip">Vulnerability Assessment</span>
@@ -338,7 +470,10 @@
             </div>
           </div>
           <div class="skill-category">
-            <div class="skill-cat-header"><span class="skill-cat-icon">⚙</span><h3>Tools & Platforms</h3></div>
+            <div class="skill-cat-header">
+              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              <h3>Tools &amp; Platforms</h3>
+            </div>
             <div class="skill-chips">
               <span class="chip">Palo Alto Networks</span>
               <span class="chip">Metasploit</span>
@@ -350,7 +485,10 @@
             </div>
           </div>
           <div class="skill-category">
-            <div class="skill-cat-header"><span class="skill-cat-icon">💻</span><h3>Development</h3></div>
+            <div class="skill-cat-header">
+              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <h3>Development</h3>
+            </div>
             <div class="skill-chips">
               <span class="chip">Python</span>
               <span class="chip">Linux / Unix</span>
@@ -362,7 +500,10 @@
             </div>
           </div>
           <div class="skill-category">
-            <div class="skill-cat-header"><span class="skill-cat-icon">☁</span><h3>Cloud & Compliance</h3></div>
+            <div class="skill-cat-header">
+              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+              <h3>Cloud &amp; Compliance</h3>
+            </div>
             <div class="skill-chips">
               <span class="chip">Oracle Cloud (OCI)</span>
               <span class="chip">NIST Framework</span>
@@ -371,76 +512,130 @@
               <span class="chip">Risk Assessment</span>
             </div>
           </div>
+          <div class="skill-category skill-category--wide">
+            <div class="skill-cat-header">
+              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              <h3>Research &amp; Publications</h3>
+            </div>
+            <div class="skill-chips">
+              <span class="chip chip--accent">IEEE Xplore &middot; Quantum Computing vs AI Security (2026)</span>
+              <span class="chip chip--accent">arXiv &middot; Quantum Bayesian Inference for IDS (2025)</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Certifications -->
-    <section class="day-section" id="day-certs">
+    <section class="day-section day-section--certs" id="day-certs">
       <div class="section-container">
         <div class="section-label">04 / CERTIFICATIONS</div>
         <h2 class="day-section-title">Credentials</h2>
         <div class="certs-grid">
-          <div class="cert-card featured">
-            <div class="cert-badge">TOP CREDENTIAL</div>
-            <h3>CISSP</h3>
-            <p>Certified Information Systems Security Professional</p>
-            <span class="cert-issuer">Infosec · 2025</span>
-          </div>
           <div class="cert-card">
+            <div class="cert-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+            </div>
             <h3>Oracle Cloud Architect</h3>
             <p>Infrastructure Certified Associate</p>
-            <span class="cert-issuer">Oracle · 2025</span>
+            <span class="cert-issuer">Oracle &middot; 2025</span>
           </div>
           <div class="cert-card">
+            <div class="cert-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+            </div>
             <h3>Oracle AI Foundations</h3>
-            <p>AI & ML Certified Associate</p>
-            <span class="cert-issuer">Oracle · 2025–2027</span>
+            <p>AI &amp; ML Certified Associate</p>
+            <span class="cert-issuer">Oracle &middot; 2025&ndash;2027</span>
           </div>
           <div class="cert-card">
+            <div class="cert-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+            </div>
             <h3>Oracle GenAI Professional</h3>
             <p>Generative AI Specialist</p>
-            <span class="cert-issuer">Oracle · 2025</span>
+            <span class="cert-issuer">Oracle &middot; 2025</span>
           </div>
           <div class="cert-card">
+            <div class="cert-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            </div>
             <h3>IBM Cybersecurity Series</h3>
             <p>Networks, Security Essentials, OS Security, Database, Cyberattacks, Governance</p>
-            <span class="cert-issuer">IBM · 2025 (×6)</span>
+            <span class="cert-issuer">IBM &middot; 2025 (&times;6)</span>
           </div>
           <div class="cert-card">
+            <div class="cert-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            </div>
             <h3>Cybersecurity for Business</h3>
             <p>Advanced Business Security Certification</p>
-            <span class="cert-issuer">University of Colorado Boulder · 2020</span>
+            <span class="cert-issuer">University of Colorado Boulder &middot; 2020</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Contact -->
-    <section class="day-section" id="day-contact">
+    <section class="day-section day-section--contact" id="day-contact">
       <div class="section-container">
         <div class="section-label">05 / CONTACT</div>
         <h2 class="day-section-title">Get In Touch</h2>
-        <div class="contact-grid">
-          <a href="mailto:garrvsipani@gmail.com" class="contact-card">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
-            <span>garrvsipani@gmail.com</span>
-          </a>
-          <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" class="contact-card">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-            <span>LinkedIn Profile</span>
-          </a>
-          <a href="https://github.com/garrv105" target="_blank" class="contact-card">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
-            <span>github.com/garrv105</span>
-          </a>
+        <div class="contact-layout">
+          <form class="contact-form" id="contact-form" onsubmit="return false;">
+            <div class="cf-row">
+              <div class="cf-field">
+                <label for="cf-name">Name</label>
+                <input type="text" id="cf-name" placeholder="Your name" autocomplete="name"/>
+              </div>
+              <div class="cf-field">
+                <label for="cf-email">Email</label>
+                <input type="email" id="cf-email" placeholder="you@company.com" autocomplete="email"/>
+              </div>
+            </div>
+            <div class="cf-row">
+              <div class="cf-field">
+                <label for="cf-company">Company</label>
+                <input type="text" id="cf-company" placeholder="Your organization"/>
+              </div>
+              <div class="cf-field">
+                <label for="cf-urgency">How urgent is your security need?</label>
+                <select id="cf-urgency">
+                  <option value="">Select urgency</option>
+                  <option value="critical">Critical &mdash; Active breach</option>
+                  <option value="high">High &mdash; Imminent threat</option>
+                  <option value="medium">Medium &mdash; Proactive assessment</option>
+                  <option value="low">Low &mdash; General inquiry</option>
+                </select>
+              </div>
+            </div>
+            <div class="cf-field cf-field--full">
+              <label for="cf-message">Message</label>
+              <textarea id="cf-message" rows="4" placeholder="Describe your security requirements..."></textarea>
+            </div>
+            <button type="submit" class="btn-day-primary cf-submit">Send Secure Message &rarr;</button>
+          </form>
+          <div class="contact-social">
+            <a href="mailto:garrvsipani@gmail.com" class="contact-card">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
+              <span>garrvsipani@gmail.com</span>
+            </a>
+            <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" class="contact-card">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              <span>LinkedIn Profile</span>
+            </a>
+            <a href="https://github.com/garrv105" target="_blank" class="contact-card">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+              <span>github.com/garrv105</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
 
     <footer class="day-footer">
-      <p>© 2026 Garrv Sipani · AI Cybersecurity Consultant · Johns Hopkins University</p>
-      <p class="day-footer-hint">Say "Arise" to explore the other side ◑ · Press <kbd>`</kbd> to open voice debug panel</p>
+      <p>&copy; 2026 Garrv Sipani &middot; AI Cybersecurity Consultant &middot; Johns Hopkins University</p>
+      <p class="day-footer-hint">Say &ldquo;Arise&rdquo; to explore the other side &#9681; &middot; Press <kbd>`</kbd> to open voice debug panel</p>
     </footer>
   </div>
 
@@ -779,6 +974,7 @@
 
   <!-- Scripts — order matters -->
   <script src="day.js"></script>
+  <script src="day-live.js"></script>
   <script src="brain.js"></script>
   <script src="avatar.js"></script>
   <script src="night.js"></script>
