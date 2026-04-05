@@ -384,24 +384,60 @@
   });
 
   // ── Profile reveal ────────────────────────
+  // ── Cinematic camera zoom ─────────────────────────────────────
+  // Smooth GSAP-driven zoom from current camera position into the
+  // core orb, with a slight scene fade. Profile reveals at peak.
   function openProfile() {
-    // Always allow re-open — main.js guards double-opens
-    if (window.__triggerProfileReveal) window.__triggerProfileReveal();
     window.QuantumAudio?.panelOpen();
 
-    // Zoom camera in slowly toward core
-    let zoom = 0;
-    const zoomInterval = setInterval(() => {
-      zoom += 0.015;
-      camera.position.z = 160 - zoom * 40;
-      if (zoom >= 1) {
-        clearInterval(zoomInterval);
-        camera.position.z = 120;
-      }
-    }, 16);
+    const startZ   = camera.position.z;
+    const targetZ  = 40;   // zoom in close to core
+    const duration = 1100; // ms
+    const startX   = camera.position.x;
+    const startY   = camera.position.y;
+    const startT   = performance.now();
 
-    // Burst particles outward from core
+    // Fade the scene slightly darker during zoom
+    renderer.domElement.style.transition = 'filter 0.6s ease';
+    renderer.domElement.style.filter     = 'brightness(1.3) saturate(1.2)';
+
+    let zoomAF = null;
+    function zoomFrame() {
+      const elapsed = performance.now() - startT;
+      const raw     = Math.min(elapsed / duration, 1);
+      // Cubic ease-in-out
+      const t = raw < 0.5 ? 4*raw*raw*raw : 1 - Math.pow(-2*raw+2,3)/2;
+
+      camera.position.z = startZ + (targetZ - startZ) * t;
+      // Drift camera slightly toward origin as we zoom
+      camera.position.x = startX * (1 - t * 0.6);
+      camera.position.y = startY * (1 - t * 0.6);
+
+      if (raw < 1) {
+        zoomAF = requestAnimationFrame(zoomFrame);
+      } else {
+        // Zoom complete — reveal profile, reset camera over 0.8s
+        cancelAnimationFrame(zoomAF);
+        renderer.domElement.style.filter = '';
+
+        if (window.__triggerProfileReveal) window.__triggerProfileReveal();
+
+        // Ease camera back out after profile opens
+        setTimeout(() => {
+          let backT  = 0;
+          const back = setInterval(() => {
+            backT = Math.min(backT + 0.025, 1);
+            const ease = 1 - Math.pow(1 - backT, 3);
+            camera.position.z = targetZ + (120 - targetZ) * ease;
+            if (backT >= 1) clearInterval(back);
+          }, 16);
+        }, 300);
+      }
+    }
+
+    // Brief pulse burst from core
     burstParticles();
+    zoomAF = requestAnimationFrame(zoomFrame);
   }
 
   function burstParticles() {
@@ -484,11 +520,36 @@
 
   let assemblyActive = false;
 
+  // ── Progress bar helpers ──────────────────────────────────────
+  function setAssemblyProgress(pct) {
+    const fill  = document.getElementById('qnn-progress-fill');
+    const label = document.getElementById('qnn-progress-pct');
+    const wrap  = document.getElementById('qnn-progress-wrap');
+    if (wrap)  wrap.style.opacity = '1';
+    if (fill)  fill.style.width   = Math.round(pct) + '%';
+    if (label) label.textContent  = Math.round(pct) + '%';
+  }
+
+  function hideAssemblyProgress() {
+    const wrap = document.getElementById('qnn-progress-wrap');
+    if (!wrap) return;
+    wrap.style.transition = 'opacity 0.6s ease';
+    wrap.style.opacity    = '0';
+    setTimeout(() => { wrap.style.display = 'none'; }, 700);
+    const lbl = document.getElementById('qnn-progress-label');
+    if (lbl) lbl.textContent = 'SYSTEM ONLINE';
+  }
+
   function startAssembly() {
     if (assemblyActive) return;
     assemblyActive = true;
 
     const heroEntry = document.getElementById('hero-entry');
+
+    // Show progress bar at 0%
+    setAssemblyProgress(0);
+    const progressWrap = document.getElementById('qnn-progress-wrap');
+    if (progressWrap) { progressWrap.style.display = ''; progressWrap.style.opacity = '0'; }
 
     assemblyOrder.forEach((node, idx) => {
       setTimeout(() => {
@@ -500,9 +561,24 @@
     // Total time for all nodes to land
     const totalNodeTime = assemblyOrder.length * ASSEMBLY_STAGGER + ASSEMBLY_DURATION;
 
+    // ── Progress bar: tick from 0→100% over totalNodeTime ──────
+    const progStart  = performance.now();
+    let   progFrame  = null;
+    function tickProgress() {
+      const elapsed = performance.now() - progStart;
+      const pct     = Math.min((elapsed / totalNodeTime) * 100, 99);
+      setAssemblyProgress(pct);
+      if (pct < 99) progFrame = requestAnimationFrame(tickProgress);
+    }
+    tickProgress();
+
     // After nodes land: fade in connections, rings, core orb
     setTimeout(() => {
       assemblyDone = true;
+
+      // Complete bar to 100%
+      cancelAnimationFrame(progFrame);
+      setAssemblyProgress(100);
 
       // Fade connections in over 600ms
       let connT = 0;
@@ -536,13 +612,16 @@
         if (ct >= 1) clearInterval(coreIn);
       }, 16);
 
-      // Show entry prompt after everything is settled
+      // Hide progress bar after brief hold, then show entry prompt
       setTimeout(() => {
-        if (heroEntry) {
-          heroEntry.style.transition = 'opacity 0.8s ease';
-          heroEntry.style.opacity    = '1';
-        }
-      }, 700);
+        hideAssemblyProgress();
+        setTimeout(() => {
+          if (heroEntry) {
+            heroEntry.style.transition = 'opacity 0.8s ease';
+            heroEntry.style.opacity    = '1';
+          }
+        }, 500);
+      }, 400);
 
     }, totalNodeTime);
   }
@@ -749,6 +828,17 @@
   window.__nightBootBrain = function () {
     // Force resize first so canvas has correct dimensions
     window.__brainForceResize();
+
+    // Reset progress bar
+    const wrap = document.getElementById('qnn-progress-wrap');
+    const fill = document.getElementById('qnn-progress-fill');
+    const pct  = document.getElementById('qnn-progress-pct');
+    const lbl  = document.getElementById('qnn-progress-label');
+    if (wrap)  { wrap.style.display = ''; wrap.style.opacity = '0'; wrap.style.transition = ''; }
+    if (fill)  fill.style.width = '0%';
+    if (pct)   pct.textContent  = '0%';
+    if (lbl)   lbl.textContent  = 'ASSEMBLING QNN';
+
     // Reset assembly state and restart
     assemblyActive = false;
     assemblyOrder.forEach(node => {
