@@ -20,49 +20,31 @@
 <body class="mode-day">
 
   <!-- ══════════════════════════════════════════════════
-       COIN LOADER
+       NEURAL SPHERE LOADER
   ══════════════════════════════════════════════════ -->
-  <div id="coin-loader">
-    <div class="coin-scene">
-      <div class="coin" id="coin">
-        <!-- HEADS — Consultant face -->
-        <div class="coin-face coin-heads">
-          <div class="coin-inner">
-            <div class="coin-ring coin-ring-1"></div>
-            <div class="coin-ring coin-ring-2"></div>
-            <div class="coin-glyph">GS</div>
-            <div class="coin-label">CONSULTANT</div>
-            <div class="coin-sublabel">BY DAY</div>
-          </div>
-        </div>
-        <!-- TAILS — Researcher face -->
-        <div class="coin-face coin-tails">
-          <div class="coin-inner">
-            <div class="coin-ring coin-ring-1 night-ring"></div>
-            <div class="coin-ring coin-ring-2 night-ring"></div>
-            <div class="coin-glyph night-glyph">⬡</div>
-            <div class="coin-label night-text">RESEARCHER</div>
-            <div class="coin-sublabel night-text">BY NIGHT</div>
-          </div>
-        </div>
-        <!-- Coin edge -->
-        <div class="coin-edge"></div>
-      </div>
+  <div id="sys-loader">
+    <!-- Three.js sphere canvas -->
+    <canvas id="loader-canvas"></canvas>
 
-      <!-- Crack lines that appear before shattering -->
-      <div class="coin-cracks" id="coin-cracks">
-        <div class="crack crack-1"></div>
-        <div class="crack crack-2"></div>
-        <div class="crack crack-3"></div>
-        <div class="crack crack-4"></div>
-      </div>
+    <!-- Scan line overlay -->
+    <div class="sl-scanlines"></div>
 
-      <!-- Shatter pieces -->
-      <div class="coin-shards" id="coin-shards"></div>
+    <!-- Bottom boot UI -->
+    <div class="sl-bottom">
+      <div class="sl-name-row">
+        <span class="sl-name">GARRV SIPANI</span>
+        <span class="sl-slash">/</span>
+        <span class="sl-role" id="sl-role">AI CYBERSECURITY CONSULTANT</span>
+      </div>
+      <div class="sl-boot-log" id="sl-boot-log"></div>
+      <div class="sl-progress-wrap">
+        <div class="sl-progress-bar" id="sl-progress-bar"></div>
+        <span class="sl-pct" id="sl-pct">0%</span>
+      </div>
     </div>
 
-    <p class="coin-tagline" id="coin-tagline">ONE PERSON · TWO REALITIES</p>
-    <div class="coin-progress"><div id="coin-progress-bar"></div></div>
+    <!-- Glitch overlay (fires at the end) -->
+    <div class="sl-glitch-overlay" id="sl-glitch"></div>
   </div>
 
   <!-- ══════════════════════════════════════════════════
@@ -136,7 +118,8 @@
   <div id="day-cursor-ring"></div>
 
   <div id="transition-layer">
-    <div id="transition-text">ENTERING DEEPER LAYER...</div>
+    <canvas id="transition-canvas"></canvas>
+    <div id="transition-text"></div>
     <div id="transition-shards"></div>
   </div>
 
@@ -174,6 +157,10 @@
   <nav id="nav">
     <div class="nav-logo">GS</div>
     <div class="nav-links" id="nav-links"></div>
+    <div id="nav-mic-status" class="nav-mic-status" title="Press ` to open voice debug">
+      <span class="nms-dot" id="nms-dot"></span>
+      <span class="nms-label" id="nms-label">MIC</span>
+    </div>
     <button class="nav-mobile-btn" id="nav-mobile-btn" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
@@ -453,7 +440,7 @@
 
     <footer class="day-footer">
       <p>© 2026 Garrv Sipani · AI Cybersecurity Consultant · Johns Hopkins University</p>
-      <p class="day-footer-hint">Say "Arise" to explore the other side ◑</p>
+      <p class="day-footer-hint">Say "Arise" to explore the other side ◑ · Press <kbd>`</kbd> to open voice debug panel</p>
     </footer>
   </div>
 
