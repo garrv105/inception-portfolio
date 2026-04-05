@@ -540,6 +540,65 @@
     if (lbl) lbl.textContent = 'SYSTEM ONLINE';
   }
 
+  // ── Phase 2: DECRYPTING PROFILE... bar ──────────────────────
+  function startDecryptPhase() {
+    const wrap  = document.getElementById('qnn-progress-wrap');
+    const fill  = document.getElementById('qnn-progress-fill');
+    const pct   = document.getElementById('qnn-progress-pct');
+    const lbl   = document.getElementById('qnn-progress-label');
+    if (!wrap) return;
+
+    // Show SYSTEM ONLINE briefly, then swap to phase 2
+    if (lbl) lbl.textContent = 'SYSTEM ONLINE';
+    if (fill) fill.style.width = '100%';
+    if (pct)  pct.textContent  = '100%';
+    wrap.style.display    = '';
+    wrap.style.transition = 'opacity 0.3s ease';
+    wrap.style.opacity    = '1';
+
+    setTimeout(() => {
+      // Transition label + reset fill for decrypt phase
+      if (lbl)  lbl.textContent = 'DECRYPTING PROFILE...';
+      if (fill) fill.style.transition = 'none';
+      if (fill) fill.style.width = '0%';
+      if (pct)  pct.textContent  = '0%';
+
+      // Optional: pulse the bar cyan→purple for decrypt feel
+      if (fill) fill.style.background = 'linear-gradient(90deg, #00e5ff, #a855f7)';
+
+      // Animate fill from 0→100% over 850ms
+      const decryptDuration = 850;
+      const decryptStart    = performance.now();
+      let   decryptAF       = null;
+
+      function tickDecrypt() {
+        const elapsed = performance.now() - decryptStart;
+        const p = Math.min((elapsed / decryptDuration) * 100, 100);
+        if (fill) fill.style.width = Math.round(p) + '%';
+        if (pct)  pct.textContent  = Math.round(p) + '%';
+        if (p < 100) {
+          decryptAF = requestAnimationFrame(tickDecrypt);
+        } else {
+          cancelAnimationFrame(decryptAF);
+          if (lbl) lbl.textContent = 'PROFILE UNLOCKED';
+          // Brief hold at 100%, then hide bar and reveal profile
+          setTimeout(() => {
+            wrap.style.transition = 'opacity 0.5s ease';
+            wrap.style.opacity    = '0';
+            setTimeout(() => {
+              wrap.style.display = 'none';
+              // Reset fill gradient for next boot cycle
+              if (fill) fill.style.background = '';
+              // Trigger profile modal
+              if (window.__triggerProfileReveal) window.__triggerProfileReveal();
+            }, 550);
+          }, 280);
+        }
+      }
+      tickDecrypt();
+    }, 600); // show SYSTEM ONLINE for 600ms before transitioning
+  }
+
   function startAssembly() {
     if (assemblyActive) return;
     assemblyActive = true;
@@ -612,15 +671,9 @@
         if (ct >= 1) clearInterval(coreIn);
       }, 16);
 
-      // Hide progress bar after brief hold, then show entry prompt
+      // Stage 1 complete — brief hold on SYSTEM ONLINE, then Phase 2
       setTimeout(() => {
-        hideAssemblyProgress();
-        setTimeout(() => {
-          if (heroEntry) {
-            heroEntry.style.transition = 'opacity 0.8s ease';
-            heroEntry.style.opacity    = '1';
-          }
-        }, 500);
+        startDecryptPhase();
       }, 400);
 
     }, totalNodeTime);
@@ -835,7 +888,7 @@
     const pct  = document.getElementById('qnn-progress-pct');
     const lbl  = document.getElementById('qnn-progress-label');
     if (wrap)  { wrap.style.display = ''; wrap.style.opacity = '0'; wrap.style.transition = ''; }
-    if (fill)  fill.style.width = '0%';
+    if (fill)  { fill.style.width = '0%'; fill.style.background = ''; fill.style.transition = ''; }
     if (pct)   pct.textContent  = '0%';
     if (lbl)   lbl.textContent  = 'ASSEMBLING QNN';
 
