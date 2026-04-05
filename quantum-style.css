@@ -1148,3 +1148,126 @@ body {
   text-align: right;
   letter-spacing: 0.06em;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   NIGHT WORLD — MOBILE OVERHAUL
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  /* Brain canvas fills the screen — already absolute/full */
+  #brain-canvas { touch-action: none; }
+
+  /* Boot HUD: make readable on narrow screens */
+  .boot-hud {
+    font-size: 0.55rem;
+    left: 1rem; right: 1rem;
+    max-width: 100%;
+  }
+  .boot-hud--tl { top: 5.5rem; left: 1rem; }
+  .boot-hud--tr { top: 5.5rem; left: 1rem; right: 1rem; }
+
+  /* HUD corner overlays — hide on mobile (too cramped) */
+  .hud { display: none !important; }
+  .hud-bottom-bar { display: none !important; }
+
+  /* Zone labels: reposition so they don't collide */
+  .zone-label { font-size: 0.52rem; letter-spacing: 0.08em; padding: 3px 8px; }
+  #zone-quantum  { right: 3%; top: 42%; }
+  #zone-cyber    { left: 3%; top: 42%; }
+  #zone-quantum2 { right: 3%; top: 58%; }
+
+  /* Progress bar: shrink track on narrow screens */
+  .qnn-progress-track { width: 110px; }
+  .qnn-progress-label { font-size: 0.52rem; letter-spacing: 0.12em; }
+  .qnn-progress-inner { padding: 0.4rem 0.85rem; gap: 0.5rem; }
+
+  /* Hero entry (tap-to-enter): show on mobile with larger tap target */
+  .hero-entry {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-entry-rings { display: none; } /* rings too large on mobile */
+  .hero-entry-glyph { font-size: 1rem; letter-spacing: 0.3em; }
+  .hero-entry-label { font-size: 0.65rem; letter-spacing: 0.18em; }
+  .hero-entry-sub   { font-size: 0.55rem; }
+
+  /* Profile modal: full-width, scrollable */
+  .profile-overlay { padding: 0; align-items: flex-end; }
+  .profile-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 88dvh;
+    border-radius: 16px 16px 0 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pm-inner { grid-template-columns: 1fr; }
+  .pm-left  { border-right: none; border-bottom: 1px solid rgba(0,229,255,0.1); padding-bottom: 1.5rem; }
+  .pm-tabs  { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .pm-tab   { white-space: nowrap; }
+  .pm-stats-row { flex-wrap: wrap; gap: 0.75rem; }
+
+  /* Night sections */
+  .layer-section  { padding: 3rem 1rem; }
+  .container      { padding: 0 1rem; }
+  .section-title  { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .projects-masonry { grid-template-columns: 1fr; }
+  .pub-grid       { grid-template-columns: 1fr; }
+  .about-grid     { grid-template-columns: 1fr; }
+
+  /* Avatar hero — show a smaller version */
+  .avatar-hero {
+    display: flex !important;
+    width: 120px;
+    height: 120px;
+    bottom: 5rem;
+    right: 1rem;
+  }
+
+  /* Voice hint inside night world */
+  .night-voice-hint { display: none; }
+
+  /* Mobile tap hint for "Arise" instead of voice (no Web Speech on iOS) */
+  .mobile-tap-hint {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .pm-avatar-wrap { width: 64px; height: 64px; }
+  .pm-name { font-size: 1.1rem; }
+  .projects-masonry { grid-template-columns: 1fr; }
+  .proj-holo--lg { grid-row: auto; }
+  .skill-nodes-grid { grid-template-columns: 1fr; }
+  .qnn-progress-track { width: 90px; }
+  .qnn-progress-label { display: none; }  /* just show bar + pct on tiny screens */
+}
+
+/* Mobile tap hint element (day world Arise button) */
+.mobile-tap-hint {
+  display: none; /* hidden on desktop */
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 490;
+  background: rgba(37,99,235,0.12);
+  border: 1px solid rgba(37,99,235,0.35);
+  border-radius: 40px;
+  padding: 0.55rem 1.4rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: rgba(37,99,235,0.85);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s, color 0.2s;
+}
+.mobile-tap-hint:active {
+  background: rgba(37,99,235,0.28);
+  color: #fff;
+}
+.mode-night .mobile-tap-hint { display: none; }
