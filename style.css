@@ -106,7 +106,7 @@ body { overflow-x: hidden; }
   font-family: 'Space Mono', monospace; font-size: 0.56rem;
   color: rgba(255,255,255,0.25); min-width: 34px; text-align: right; letter-spacing: 0.06em;
 }
-.sl-glitch-overlay { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 10; }
+.sl-glitch-overlay { display: none; }
 
 /* ═══════════════════════════════════════════════════════════
    TRANSITION LAYER — Three.js canvas particle warp
