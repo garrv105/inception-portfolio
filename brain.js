@@ -739,7 +739,16 @@
   // ── Night boot hook ──────────────────────────────────────
   // Called by inception-main.js when "Arise" fires so the assembly
   // sequence runs fresh even though scripts already loaded once.
+  // Force resize — call this right after making night world visible
+  window.__brainForceResize = function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  };
+
   window.__nightBootBrain = function () {
+    // Force resize first so canvas has correct dimensions
+    window.__brainForceResize();
     // Reset assembly state and restart
     assemblyActive = false;
     assemblyOrder.forEach(node => {
