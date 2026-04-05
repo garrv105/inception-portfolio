@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Garrv Sipani — AI Cybersecurity Consultant & Quantum Researcher</title>
+  <meta name="description" content="Dual-identity portfolio of Garrv Sipani: AI Cybersecurity Consultant by day, Quantum Researcher by night."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="quantum-style.css"/>
+</head>
+<body class="mode-day">
+
+  <!-- ══════════════════════════════════════════════════
+       COIN LOADER
+  ══════════════════════════════════════════════════ -->
+  <div id="coin-loader">
+    <div class="coin-scene">
+      <div class="coin" id="coin">
+        <!-- HEADS — Consultant face -->
+        <div class="coin-face coin-heads">
+          <div class="coin-inner">
+            <div class="coin-ring coin-ring-1"></div>
+            <div class="coin-ring coin-ring-2"></div>
+            <div class="coin-glyph">GS</div>
+            <div class="coin-label">CONSULTANT</div>
+            <div class="coin-sublabel">BY DAY</div>
+          </div>
+        </div>
+        <!-- TAILS — Researcher face -->
+        <div class="coin-face coin-tails">
+          <div class="coin-inner">
+            <div class="coin-ring coin-ring-1 night-ring"></div>
+            <div class="coin-ring coin-ring-2 night-ring"></div>
+            <div class="coin-glyph night-glyph">⬡</div>
+            <div class="coin-label night-text">RESEARCHER</div>
+            <div class="coin-sublabel night-text">BY NIGHT</div>
+          </div>
+        </div>
+        <!-- Coin edge -->
+        <div class="coin-edge"></div>
+      </div>
+
+      <!-- Crack lines that appear before shattering -->
+      <div class="coin-cracks" id="coin-cracks">
+        <div class="crack crack-1"></div>
+        <div class="crack crack-2"></div>
+        <div class="crack crack-3"></div>
+        <div class="crack crack-4"></div>
+      </div>
+
+      <!-- Shatter pieces -->
+      <div class="coin-shards" id="coin-shards"></div>
+    </div>
+
+    <p class="coin-tagline" id="coin-tagline">ONE PERSON · TWO REALITIES</p>
+    <div class="coin-progress"><div id="coin-progress-bar"></div></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       VOICE DEBUG PANEL (toggle with ` backtick)
+  ══════════════════════════════════════════════════ -->
+  <div id="voice-debug" class="voice-debug hidden" role="dialog" aria-label="Voice Debug Panel">
+    <div class="vd-header">
+      <div class="vd-title">
+        <div class="vd-status-dot" id="vd-status-dot"></div>
+        <span class="vd-title-text">VOICE DEBUG</span>
+        <span class="vd-badge" id="vd-engine-badge">INIT</span>
+      </div>
+      <button class="vd-close" id="vd-close" title="Close (` to toggle)">✕</button>
+    </div>
+
+    <!-- Waveform canvas -->
+    <div class="vd-waveform-wrap">
+      <canvas id="vd-waveform" width="320" height="64"></canvas>
+      <div class="vd-waveform-label mono">MICROPHONE · WAVEFORM</div>
+    </div>
+
+    <!-- Status row -->
+    <div class="vd-row">
+      <div class="vd-cell">
+        <div class="vd-cell-label">ENGINE</div>
+        <div class="vd-cell-val" id="vd-state">IDLE</div>
+      </div>
+      <div class="vd-cell">
+        <div class="vd-cell-label">CURRENT MODE</div>
+        <div class="vd-cell-val" id="vd-mode">DAY</div>
+      </div>
+      <div class="vd-cell">
+        <div class="vd-cell-label">SESSION</div>
+        <div class="vd-cell-val" id="vd-session">0</div>
+      </div>
+    </div>
+
+    <!-- Last phrase + confidence -->
+    <div class="vd-phrase-block">
+      <div class="vd-cell-label">LAST DETECTED PHRASE</div>
+      <div class="vd-phrase-text" id="vd-phrase">—</div>
+      <div class="vd-confidence-wrap">
+        <div class="vd-conf-label mono">CONFIDENCE</div>
+        <div class="vd-conf-bar-bg">
+          <div class="vd-conf-bar" id="vd-conf-bar"></div>
+        </div>
+        <div class="vd-conf-pct" id="vd-conf-pct">—</div>
+      </div>
+    </div>
+
+    <!-- All alternatives log -->
+    <div class="vd-alts-block">
+      <div class="vd-cell-label">ALL ALTERNATIVES (last result)</div>
+      <div class="vd-alts-list" id="vd-alts">—</div>
+    </div>
+
+    <!-- Command log -->
+    <div class="vd-log-block">
+      <div class="vd-cell-label">EVENT LOG</div>
+      <div class="vd-log" id="vd-log"></div>
+    </div>
+
+    <!-- Keyboard hint -->
+    <div class="vd-footer mono">Press <kbd>`</kbd> to toggle · Voice always active in background</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TRANSITION LAYER
+  ══════════════════════════════════════════════════ -->
+  <div id="day-cursor"></div>
+  <div id="day-cursor-ring"></div>
+
+  <div id="transition-layer">
+    <div id="transition-text">ENTERING DEEPER LAYER...</div>
+    <div id="transition-shards"></div>
+  </div>
+
+  <!-- Night-mode Descend voice hint -->
+  <div class="night-voice-hint" id="night-voice-hint">say "Descend" to return</div>
+
+  <!-- ══════════════════════════════════════════════════
+       VOICE COMMAND INDICATOR
+  ══════════════════════════════════════════════════ -->
+  <div id="voice-indicator" class="voice-indicator hidden">
+    <div class="voice-rings">
+      <div class="vr vr-1"></div>
+      <div class="vr vr-2"></div>
+      <div class="vr vr-3"></div>
+    </div>
+    <span class="voice-text" id="voice-text-span">Listening... say <strong>"Arise"</strong></span>
+  </div>
+
+  <!-- Mic button (day mode) -->
+  <button id="voice-btn" class="voice-btn" title="Say 'Arise' to enter Researcher mode">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+    </svg>
+  </button>
+
+  <!-- "Return" button shown only in night mode -->
+  <button id="return-btn" class="return-btn hidden" title="Return to Consultant mode">
+    ↑ RETURN TO SURFACE
+  </button>
+
+  <!-- ══════════════════════════════════════════════════
+       SHARED NAV
+  ══════════════════════════════════════════════════ -->
+  <nav id="nav">
+    <div class="nav-logo">GS</div>
+    <div class="nav-links" id="nav-links"></div>
+    <button class="nav-mobile-btn" id="nav-mobile-btn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════
+       DAY WORLD — AI Cybersecurity Consultant
+  ══════════════════════════════════════════════════ -->
+  <div id="world-day" class="world">
+
+    <!-- Day Hero -->
+    <section class="day-hero" id="day-hero">
+      <canvas id="day-canvas"></canvas>
+      <div class="day-hero-grid"></div>
+
+      <!-- Split identity reveal line -->
+      <div class="day-split-line" id="day-split-line"></div>
+
+      <div class="day-hero-content">
+        <div class="day-hero-eyebrow">
+          <div class="eyebrow-dot"></div>
+          <span>AVAILABLE FOR CONSULTING</span>
+        </div>
+        <h1 class="day-hero-name">Garrv<br/><span class="name-accent">Sipani</span></h1>
+        <p class="day-hero-role">AI Cybersecurity Consultant</p>
+        <p class="day-hero-tagline">Building enterprise-grade security systems powered by AI.<br/>
+        NIST · ISO 27001 · Ethical Hacking · Cloud Defense.</p>
+        <div class="day-hero-cta">
+          <a href="#day-experience" class="btn-day-primary">View Experience →</a>
+          <a href="mailto:garrvsipani@gmail.com" class="btn-day-ghost">Contact</a>
+        </div>
+        <div class="day-hero-stats">
+          <div class="day-stat"><span class="ds-num">5+</span><span class="ds-label">Years</span></div>
+          <div class="day-stat-div"></div>
+          <div class="day-stat"><span class="ds-num">3.95</span><span class="ds-label">GPA</span></div>
+          <div class="day-stat-div"></div>
+          <div class="day-stat"><span class="ds-num">11</span><span class="ds-label">Certs</span></div>
+          <div class="day-stat-div"></div>
+          <div class="day-stat"><span class="ds-num">2</span><span class="ds-label">Publications</span></div>
+        </div>
+      </div>
+
+      <!-- Voice hint -->
+      <div class="day-voice-hint">
+        <span class="vhint-mic">🎤</span>
+        <span>Say <strong>"Arise"</strong> to enter Researcher mode</span>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="day-section" id="day-about">
+      <div class="section-container">
+        <div class="section-label">01 / ABOUT</div>
+        <h2 class="day-section-title">Background</h2>
+        <div class="about-grid">
+          <div class="about-text">
+            <p>Security architect and researcher specializing in AI-augmented cybersecurity. Currently pursuing an MS in Cybersecurity at Johns Hopkins University (GPA 3.95) while serving as Head Cybersecurity Consultant at Quaranta, Australia.</p>
+            <p>My approach combines deep technical expertise in penetration testing and incident response with cutting-edge machine learning to build security systems that don't just detect threats — they anticipate them.</p>
+          </div>
+          <div class="about-education">
+            <div class="edu-card">
+              <div class="edu-year">2025–2026</div>
+              <div class="edu-details">
+                <h3>MS Cybersecurity</h3>
+                <p>Johns Hopkins University · Baltimore, MD</p>
+                <span class="edu-gpa">GPA 3.95</span>
+              </div>
+            </div>
+            <div class="edu-card">
+              <div class="edu-year">2022–2024</div>
+              <div class="edu-details">
+                <h3>BSc Cybersecurity</h3>
+                <p>Macquarie University · Sydney, Australia</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience -->
+    <section class="day-section" id="day-experience">
+      <div class="section-container">
+        <div class="section-label">02 / EXPERIENCE</div>
+        <h2 class="day-section-title">Career Timeline</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-card">
+              <div class="timeline-header">
+                <div>
+                  <h3>Head Cybersecurity Consultant</h3>
+                  <p class="timeline-company">Quaranta · Australia</p>
+                </div>
+                <div class="timeline-date">Apr 2023 – Present</div>
+              </div>
+              <ul>
+                <li>Strategic cybersecurity consulting using NIST &amp; ISO 27001 frameworks</li>
+                <li>Ethical hacking on networks, web apps, and cloud using Burp Suite + Palo Alto</li>
+                <li>Led incident recovery operations restoring enterprise operations</li>
+                <li>Linux security infrastructure + IPSec + Palo Alto firewall deployment</li>
+              </ul>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-card">
+              <div class="timeline-header">
+                <div>
+                  <h3>Cyber Security Analyst</h3>
+                  <p class="timeline-company">Buzzpenny Systems LLP · India</p>
+                </div>
+                <div class="timeline-date">Feb 2024 – Present</div>
+              </div>
+              <ul>
+                <li>Python automation — 40% faster threat detection, 2× threat response speed</li>
+                <li>Vulnerability assessments with Wireshark, Scapy, and OCI scanning</li>
+                <li>Reduced system downtime 20%+ via coordinated incident response</li>
+              </ul>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-card">
+              <div class="timeline-header">
+                <div>
+                  <h3>Cyber Security Consultant</h3>
+                  <p class="timeline-company">Quaranta.io · Sydney</p>
+                </div>
+                <div class="timeline-date">Feb – Apr 2023</div>
+              </div>
+              <ul>
+                <li>Palo Alto Networks assessments + SIEM monitoring deployments</li>
+                <li>TensorFlow-based risk scoring for NIST/ISO-aligned remediation</li>
+                <li>STRIDE threat modeling with neural-network scenario simulation</li>
+              </ul>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-card">
+              <div class="timeline-header">
+                <div>
+                  <h3>Cyber Security Engineer</h3>
+                  <p class="timeline-company">Regent Digitech · India</p>
+                </div>
+                <div class="timeline-date">Jun – Dec 2021</div>
+              </div>
+              <ul>
+                <li>Palo Alto firewall deployment + Bash automation on OCI</li>
+                <li>Forensic Wireshark analysis — identified 3 critical incidents</li>
+                <li>Vulnerability management and compliance documentation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="day-section" id="day-skills">
+      <div class="section-container">
+        <div class="section-label">03 / SKILLS</div>
+        <h2 class="day-section-title">Technical Arsenal</h2>
+        <div class="skills-grid">
+          <div class="skill-category">
+            <div class="skill-cat-header"><span class="skill-cat-icon">🛡</span><h3>Security Operations</h3></div>
+            <div class="skill-chips">
+              <span class="chip">Penetration Testing</span>
+              <span class="chip">Vulnerability Assessment</span>
+              <span class="chip">Incident Response</span>
+              <span class="chip">IDS/IPS</span>
+              <span class="chip">SIEM</span>
+              <span class="chip">Threat Modeling</span>
+            </div>
+          </div>
+          <div class="skill-category">
+            <div class="skill-cat-header"><span class="skill-cat-icon">⚙</span><h3>Tools & Platforms</h3></div>
+            <div class="skill-chips">
+              <span class="chip">Palo Alto Networks</span>
+              <span class="chip">Metasploit</span>
+              <span class="chip">Nmap</span>
+              <span class="chip">Wireshark</span>
+              <span class="chip">Burp Suite</span>
+              <span class="chip">Splunk</span>
+              <span class="chip">Scapy</span>
+            </div>
+          </div>
+          <div class="skill-category">
+            <div class="skill-cat-header"><span class="skill-cat-icon">💻</span><h3>Development</h3></div>
+            <div class="skill-chips">
+              <span class="chip">Python</span>
+              <span class="chip">Linux / Unix</span>
+              <span class="chip">Bash</span>
+              <span class="chip">Docker</span>
+              <span class="chip">Kubernetes</span>
+              <span class="chip">TensorFlow</span>
+              <span class="chip">PyTorch</span>
+            </div>
+          </div>
+          <div class="skill-category">
+            <div class="skill-cat-header"><span class="skill-cat-icon">☁</span><h3>Cloud & Compliance</h3></div>
+            <div class="skill-chips">
+              <span class="chip">Oracle Cloud (OCI)</span>
+              <span class="chip">NIST Framework</span>
+              <span class="chip">ISO 27001</span>
+              <span class="chip">STRIDE</span>
+              <span class="chip">Risk Assessment</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Certifications -->
+    <section class="day-section" id="day-certs">
+      <div class="section-container">
+        <div class="section-label">04 / CERTIFICATIONS</div>
+        <h2 class="day-section-title">Credentials</h2>
+        <div class="certs-grid">
+          <div class="cert-card featured">
+            <div class="cert-badge">TOP CREDENTIAL</div>
+            <h3>CISSP</h3>
+            <p>Certified Information Systems Security Professional</p>
+            <span class="cert-issuer">Infosec · 2025</span>
+          </div>
+          <div class="cert-card">
+            <h3>Oracle Cloud Architect</h3>
+            <p>Infrastructure Certified Associate</p>
+            <span class="cert-issuer">Oracle · 2025</span>
+          </div>
+          <div class="cert-card">
+            <h3>Oracle AI Foundations</h3>
+            <p>AI & ML Certified Associate</p>
+            <span class="cert-issuer">Oracle · 2025–2027</span>
+          </div>
+          <div class="cert-card">
+            <h3>Oracle GenAI Professional</h3>
+            <p>Generative AI Specialist</p>
+            <span class="cert-issuer">Oracle · 2025</span>
+          </div>
+          <div class="cert-card">
+            <h3>IBM Cybersecurity Series</h3>
+            <p>Networks, Security Essentials, OS Security, Database, Cyberattacks, Governance</p>
+            <span class="cert-issuer">IBM · 2025 (×6)</span>
+          </div>
+          <div class="cert-card">
+            <h3>Cybersecurity for Business</h3>
+            <p>Advanced Business Security Certification</p>
+            <span class="cert-issuer">University of Colorado Boulder · 2020</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="day-section" id="day-contact">
+      <div class="section-container">
+        <div class="section-label">05 / CONTACT</div>
+        <h2 class="day-section-title">Get In Touch</h2>
+        <div class="contact-grid">
+          <a href="mailto:garrvsipani@gmail.com" class="contact-card">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
+            <span>garrvsipani@gmail.com</span>
+          </a>
+          <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" class="contact-card">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            <span>LinkedIn Profile</span>
+          </a>
+          <a href="https://github.com/garrv105" target="_blank" class="contact-card">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+            <span>github.com/garrv105</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="day-footer">
+      <p>© 2026 Garrv Sipani · AI Cybersecurity Consultant · Johns Hopkins University</p>
+      <p class="day-footer-hint">Say "Arise" to explore the other side ◑</p>
+    </footer>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       NIGHT WORLD — Quantum Neural Network Researcher
+       (Full quantum-brain-portfolio embedded)
+  ══════════════════════════════════════════════════ -->
+  <div id="world-night" class="world hidden">
+
+    <!-- Scan lines overlay -->
+    <div id="scanlines"></div>
+
+    <!-- ═══ HERO — FULLSCREEN 3D BRAIN ═══ -->
+    <section id="hero" class="qbp-hero">
+      <canvas id="brain-canvas"></canvas>
+      <canvas id="quantum-field-canvas"></canvas>
+
+      <div class="hud hud--tl" id="hud-tl">
+        <span class="hud-label">SYSTEM STATUS</span>
+        <span class="hud-value green">● ONLINE</span>
+        <span class="hud-label">NODE COUNT</span>
+        <span class="hud-value" id="hud-nodes">—</span>
+        <span class="hud-label">QUBITS ACTIVE</span>
+        <span class="hud-value cyan" id="hud-qubits">—</span>
+      </div>
+
+      <div class="hud hud--tr" id="hud-tr">
+        <span class="hud-label">AFFILIATION</span>
+        <span class="hud-value">Johns Hopkins Univ.</span>
+        <span class="hud-label">FOCUS AREAS</span>
+        <span class="hud-value cyan">Quantum · AI · Cyber</span>
+      </div>
+
+      <div class="hud-bottom-bar" id="hud-bottom">
+        <div class="hbb-item"><span class="hbb-key">IEEE</span><span class="hbb-val">PUBLISHED · 2026</span></div>
+        <div class="hbb-sep"></div>
+        <div class="hbb-item"><span class="hbb-key">arXiv</span><span class="hbb-val">2507.00403</span></div>
+        <div class="hbb-sep"></div>
+        <div class="hbb-item"><span class="hbb-key">INST</span><span class="hbb-val">JOHNS HOPKINS</span></div>
+        <div class="hbb-sep"></div>
+        <div class="hbb-item"><span class="hbb-key">ROLE</span><span class="hbb-val">QUANTUM AI RESEARCHER</span></div>
+      </div>
+
+      <div class="hero-entry" id="hero-entry">
+        <div class="hero-entry-ring"></div>
+        <div class="hero-entry-ring hero-entry-ring--2"></div>
+        <div class="hero-entry-ring hero-entry-ring--3"></div>
+        <div class="hero-entry-glyph">⬡</div>
+        <p class="hero-entry-label mono">QUANTUM NEURAL NETWORK</p>
+        <p class="hero-entry-sub mono">CLICK TO ACCESS PROFILE</p>
+      </div>
+
+      <!-- Holographic Avatar -->
+      <div id="avatar-hero" class="avatar-hero">
+        <canvas id="avatar-hero-canvas"></canvas>
+        <div class="avatar-nameplate">
+          <div class="anp-scanbar"></div>
+          <div class="anp-corner anp-tl"></div><div class="anp-corner anp-tr"></div>
+          <div class="anp-corner anp-bl"></div><div class="anp-corner anp-br"></div>
+          <p class="anp-name">GARRV SIPANI</p>
+          <p class="anp-title mono">QUANTUM AI &amp; CYBERSECURITY RESEARCHER</p>
+          <div class="anp-tags">
+            <span>IEEE PUBLISHED</span><span>JOHNS HOPKINS</span><span>POST-QUANTUM</span>
+          </div>
+          <div class="anp-status"><span class="anp-dot"></span><span class="mono">ACTIVE · ONLINE</span></div>
+        </div>
+      </div>
+
+      <!-- Boot HUD -->
+      <div id="boot-hud" class="boot-hud">
+        <div class="boot-hud-line" id="boot-line-out"></div>
+      </div>
+
+      <!-- Zone labels -->
+      <div class="zone-label" id="zone-ai" data-zone="ai"><div class="zone-dot"></div><span>AI SYSTEMS</span></div>
+      <div class="zone-label" id="zone-quantum" data-zone="quantum"><div class="zone-dot zone-dot--purple"></div><span>QUANTUM</span></div>
+      <div class="zone-label" id="zone-cyber" data-zone="cyber"><div class="zone-dot zone-dot--green"></div><span>CYBERSECURITY</span></div>
+
+      <div class="scroll-cue">
+        <span class="mono small">SCROLL TO EXPLORE LAYERS</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </section>
+
+    <!-- Zone Panel -->
+    <div id="zone-panel" class="zone-panel hidden">
+      <div class="zone-panel-inner">
+        <button class="zone-panel-close" id="zone-panel-close">✕</button>
+        <div id="zone-panel-content"></div>
+      </div>
+    </div>
+
+    <!-- Profile Overlay -->
+    <div id="profile-overlay" class="profile-overlay hidden">
+      <div class="profile-overlay-bg"></div>
+      <div class="profile-modal" id="profile-modal">
+        <div class="pm-corner pm-tl"></div><div class="pm-corner pm-tr"></div>
+        <div class="pm-corner pm-bl"></div><div class="pm-corner pm-br"></div>
+        <div class="pm-scan"></div>
+        <button class="pm-close" id="profile-close">✕ CLOSE</button>
+        <div class="pm-inner">
+          <div class="pm-left">
+            <div class="pm-avatar-scene">
+              <div class="pm-avatar-rings">
+                <div class="pm-ring pm-ring-1"></div>
+                <div class="pm-ring pm-ring-2"></div>
+                <div class="pm-ring pm-ring-3"></div>
+              </div>
+              <div class="pm-avatar-frame">
+                <div class="pm-avatar-glyph">GS</div>
+                <div class="pm-avatar-hex"></div>
+                <canvas id="avatar-canvas" width="160" height="160"></canvas>
+              </div>
+              <div class="pm-status-ring">
+                <span class="pm-status-dot"></span>
+                <span class="pm-status-text mono">ACTIVE · ONLINE</span>
+              </div>
+            </div>
+            <h2 class="pm-name">Garrv Sipani</h2>
+            <p class="pm-title mono">Quantum AI &amp; Cybersecurity Researcher</p>
+            <p class="pm-affil mono">Johns Hopkins University</p>
+            <div class="pm-links">
+              <a href="mailto:garrvsipani@gmail.com" class="pm-link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+                garrvsipani@gmail.com
+              </a>
+              <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" rel="noopener" class="pm-link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                LinkedIn
+              </a>
+              <a href="https://github.com/garrv105" target="_blank" rel="noopener" class="pm-link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                GitHub / garrv105
+              </a>
+            </div>
+          </div>
+          <div class="pm-right">
+            <div class="pm-tabs">
+              <button class="pm-tab active" data-tab="bio">PROFILE</button>
+              <button class="pm-tab" data-tab="skills">SKILLS</button>
+              <button class="pm-tab" data-tab="timeline">TIMELINE</button>
+            </div>
+            <div class="pm-tab-content active" id="tab-bio">
+              <p class="pm-block-label mono">// RESEARCH VISION</p>
+              <p class="pm-bio">Researcher at the frontier of <span class="hl-cyan">quantum computing</span> and <span class="hl-purple">artificial intelligence</span>, architecting defenses for the post-quantum era. My work targets the critical window before fault-tolerant quantum computers break classical cryptography.</p>
+              <p class="pm-bio" style="margin-top:1rem">Advancing <span class="hl-cyan">secure informatics</span> at Johns Hopkins Whiting School of Engineering. Teaching Assistant for graduate Ethical Hacking. Head Cybersecurity Consultant at <span class="hl-purple">Quaranta.io</span>, Sydney.</p>
+              <div class="pm-stats-row">
+                <div class="pm-stat"><div class="pm-stat-val cyan">2</div><div class="pm-stat-key">Publications</div></div>
+                <div class="pm-stat"><div class="pm-stat-val purple">4+</div><div class="pm-stat-key">Years Research</div></div>
+                <div class="pm-stat"><div class="pm-stat-val green">6</div><div class="pm-stat-key">Projects</div></div>
+              </div>
+            </div>
+            <div class="pm-tab-content" id="tab-skills">
+              <p class="pm-block-label mono">// QUANTUM SKILL MATRIX</p>
+              <div class="pm-skills">
+                <div class="pm-skill" style="--sc:#00e5ff"><span>Quantum Algorithms</span><div class="pm-skill-bar"><div style="width:92%"></div></div></div>
+                <div class="pm-skill" style="--sc:#9d4edd"><span>Deep Learning</span><div class="pm-skill-bar"><div style="width:90%"></div></div></div>
+                <div class="pm-skill" style="--sc:#00e5ff"><span>Python / PyTorch</span><div class="pm-skill-bar"><div style="width:95%"></div></div></div>
+                <div class="pm-skill" style="--sc:#9d4edd"><span>Post-Quantum Crypto</span><div class="pm-skill-bar"><div style="width:88%"></div></div></div>
+                <div class="pm-skill" style="--sc:#00ff88"><span>Penetration Testing</span><div class="pm-skill-bar"><div style="width:87%"></div></div></div>
+                <div class="pm-skill" style="--sc:#00e5ff"><span>Cirq / Qiskit</span><div class="pm-skill-bar"><div style="width:89%"></div></div></div>
+              </div>
+            </div>
+            <div class="pm-tab-content" id="tab-timeline">
+              <p class="pm-block-label mono">// CAREER TIMELINE</p>
+              <div class="pm-timeline">
+                <div class="pm-tl-item"><div class="pm-tl-dot" style="--c:#00e5ff"></div><div class="pm-tl-body"><span class="pm-tl-year">2026 →</span><span class="pm-tl-role">TA · Ethical Hacking</span><span class="pm-tl-org">Johns Hopkins University</span></div></div>
+                <div class="pm-tl-item"><div class="pm-tl-dot" style="--c:#9d4edd"></div><div class="pm-tl-body"><span class="pm-tl-year">2025 →</span><span class="pm-tl-role">M.S. Cybersecurity</span><span class="pm-tl-org">JHU Whiting School of Engineering</span></div></div>
+                <div class="pm-tl-item"><div class="pm-tl-dot" style="--c:#00ff88"></div><div class="pm-tl-body"><span class="pm-tl-year">2023 →</span><span class="pm-tl-role">Head Cybersecurity Consultant</span><span class="pm-tl-org">Quaranta.io · Sydney, Australia</span></div></div>
+                <div class="pm-tl-item"><div class="pm-tl-dot" style="--c:#9d4edd"></div><div class="pm-tl-body"><span class="pm-tl-year">2026</span><span class="pm-tl-role">First Author — IEEE Publication</span><span class="pm-tl-org">IEEE Xplore · Quantum AI Security</span></div></div>
+                <div class="pm-tl-item"><div class="pm-tl-dot" style="--c:#00e5ff"></div><div class="pm-tl-body"><span class="pm-tl-year">2022–24</span><span class="pm-tl-role">B.Sc. Cybersecurity</span><span class="pm-tl-org">Macquarie University, Sydney</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pm-actions">
+          <a href="#research" class="pm-btn" id="profile-explore">EXPLORE RESEARCH ↓</a>
+          <a href="#night-contact" class="pm-btn pm-btn--ghost">INITIATE CONTACT</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Section -->
+    <section id="research" class="layer-section layer-neural">
+      <div class="layer-bg-anim" id="neural-bg"></div>
+      <div class="layer-label"><span class="layer-num">01</span><span class="layer-name">NEURAL LAYER — PUBLICATIONS</span></div>
+      <div class="container">
+        <h2 class="section-title">Published <span class="grad">Research</span></h2>
+        <div class="pub-grid">
+          <div class="glass-card reveal" data-delay="0">
+            <div class="glass-card-accent"></div>
+            <div class="glass-card-body">
+              <div class="card-tags">
+                <span class="ctag ctag--cyan">IEEE · 2026</span>
+                <span class="ctag ctag--pink">First Author</span>
+                <span class="ctag ctag--green">Peer-Reviewed</span>
+              </div>
+              <h3>Quantum Computing: An Emerging or Immediate Threat to Classical AI-Based Security Systems?</h3>
+              <p class="card-meta mono">IEEE Xplore · February 2026</p>
+              <p class="card-desc">Investigates how quantum computational capabilities challenge existing AI-driven security models, assesses vulnerabilities, and outlines quantum-resilient strategies.</p>
+              <div class="card-footer">
+                <span class="author-tag author-me">Garrv Sipani</span>
+                <a href="https://ieeexplore.ieee.org/document/11393885" target="_blank" rel="noopener" class="card-link">View on IEEE →</a>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card reveal" data-delay="100">
+            <div class="glass-card-accent glass-card-accent--purple"></div>
+            <div class="glass-card-body">
+              <div class="card-tags">
+                <span class="ctag ctag--purple">arXiv · 2025</span>
+                <span class="ctag ctag--gray">Preprint</span>
+              </div>
+              <h3>Quantum Bayesian Inference with Support Vector States for Intrusion Detection</h3>
+              <p class="card-meta mono">arXiv:2507.00403 · Cornell University · July 2025</p>
+              <p class="card-desc">Quantum Bayesian inference for intrusion detection using explicitly constructed quantum circuits — demonstrating quantum-native inference for security applications.</p>
+              <div class="card-footer">
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <span class="author-tag">N. Mridha</span>
+                  <span class="author-tag author-me">G. Sipani</span>
+                  <span class="author-tag">E. Gaarder</span>
+                  <span class="author-tag">+5</span>
+                </div>
+                <a href="https://arxiv.org/abs/2507.00403" target="_blank" rel="noopener" class="card-link">arXiv →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="layer-section layer-quantum">
+      <div class="layer-bg-anim" id="quantum-bg"></div>
+      <div class="layer-label"><span class="layer-num">02</span><span class="layer-name">QUANTUM LAYER — PROJECTS</span></div>
+      <div class="container">
+        <h2 class="section-title">Open-Source <span class="grad">Arsenal</span></h2>
+        <div class="projects-masonry">
+          <div class="proj-holo reveal" data-delay="0"><div class="proj-holo-inner"><div class="proj-corner tl"></div><div class="proj-corner tr"></div><div class="proj-corner bl"></div><div class="proj-corner br"></div><div class="proj-num mono">01</div><h3>QuantumShield</h3><p class="proj-type mono">Post-Quantum Cryptography Framework</p><p class="proj-desc">Lattice-based, hash-based, and multivariate polynomial algorithms with enterprise deployment.</p><div class="proj-stack"><span>Lattice Crypto</span><span>Post-Quantum</span></div><a href="https://github.com/garrv105/quantumshield" target="_blank" rel="noopener" class="proj-link">GitHub →</a></div></div>
+          <div class="proj-holo proj-holo--lg reveal" data-delay="80"><div class="proj-holo-inner"><div class="proj-corner tl"></div><div class="proj-corner tr"></div><div class="proj-corner bl"></div><div class="proj-corner br"></div><div class="proj-num mono">02</div><div class="proj-accent-stat">96.7% <span>Accuracy</span></div><h3>AI Threat Hunter</h3><p class="proj-type mono">Deep Learning IDS</p><p class="proj-desc">Ensemble LSTM + attention, CNN, and Isolation Forest. Zero-day detection sub-100ms latency, 0.3% false positive rate.</p><div class="proj-stack"><span>LSTM</span><span>CNN</span><span>PyTorch</span></div><a href="https://github.com/garrv105/ai-threat-hunter" target="_blank" rel="noopener" class="proj-link">GitHub →</a></div></div>
+          <div class="proj-holo reveal" data-delay="160"><div class="proj-holo-inner"><div class="proj-corner tl"></div><div class="proj-corner tr"></div><div class="proj-corner bl"></div><div class="proj-corner br"></div><div class="proj-num mono">03</div><h3>Quantum IoT Security</h3><p class="proj-type mono">Quantum-Enhanced Incident Response</p><p class="proj-desc">Real-time quantum threat assessment for distributed IoT using quantum-classical hybrid systems.</p><div class="proj-stack"><span>Qiskit</span><span>IoT</span></div><a href="https://github.com/garrv105/quantum-iot-security" target="_blank" rel="noopener" class="proj-link">GitHub →</a></div></div>
+          <div class="proj-holo reveal" data-delay="240"><div class="proj-holo-inner"><div class="proj-corner tl"></div><div class="proj-corner tr"></div><div class="proj-corner bl"></div><div class="proj-corner br"></div><div class="proj-num mono">04</div><h3>Neurosync</h3><p class="proj-type mono">Medical Device Security Research</p><p class="proj-desc">Security frameworks for neural interface protection and secure signal processing in biomedical environments.</p><div class="proj-stack"><span>Neural Interface</span><span>Biomedical</span></div></div></div>
+          <div class="proj-holo proj-holo--ongoing reveal" data-delay="300"><div class="proj-holo-inner"><div class="proj-corner tl"></div><div class="proj-corner tr"></div><div class="proj-corner bl"></div><div class="proj-corner br"></div><div class="proj-num mono">05</div><span class="proj-status-badge">● ACTIVE</span><h3>Quantum-AI Cyber Defense Platform</h3><p class="proj-type mono">Next-Gen Platform · Quaranta.io</p><p class="proj-desc">Proprietary quantum-enhanced platform for adaptive enterprise threat intelligence.</p><div class="proj-stack"><span>Cirq</span><span>Qiskit</span><span>PyTorch</span></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About / Skills Section -->
+    <section id="night-about" class="layer-section layer-security">
+      <canvas class="layer-canvas" id="security-canvas"></canvas>
+      <div class="layer-label"><span class="layer-num">03</span><span class="layer-name">SECURITY LAYER — PROFILE</span></div>
+      <div class="container">
+        <div class="about-holo-panel reveal">
+          <div class="holo-panel-corners"><div class="hpc tl"></div><div class="hpc tr"></div><div class="hpc bl"></div><div class="hpc br"></div></div>
+          <div class="about-grid">
+            <div class="about-left">
+              <div class="about-avatar-wrap">
+                <div class="about-avatar">GS</div>
+                <svg class="avatar-orbit" viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="55" stroke="rgba(0,229,255,0.15)" stroke-width="1" stroke-dasharray="4 6"/><circle cx="60" cy="5" r="4" fill="#00e5ff"/></svg>
+              </div>
+              <div class="about-identity">
+                <h2 class="about-name">Garrv Sipani</h2>
+                <p class="about-role mono">Quantum AI Researcher</p>
+                <p class="about-location mono">● Johns Hopkins University</p>
+              </div>
+              <div class="about-links">
+                <a href="mailto:garrvsipani@gmail.com" class="alink"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>garrvsipani@gmail.com</a>
+                <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" rel="noopener" class="alink"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</a>
+                <a href="https://github.com/garrv105" target="_blank" rel="noopener" class="alink"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub / garrv105</a>
+              </div>
+            </div>
+            <div class="about-right">
+              <div class="about-section-block">
+                <p class="block-label mono">// RESEARCH VISION</p>
+                <p class="about-bio">Researcher at the frontier of <span class="hl-cyan">quantum computing</span> and <span class="hl-purple">artificial intelligence</span>, architecting defenses for the post-quantum era.</p>
+              </div>
+              <div class="about-section-block">
+                <p class="block-label mono">// CORE EXPERTISE</p>
+                <div class="skill-nodes-grid">
+                  <div class="snode" style="--sc:#00e5ff"><div class="snode-dot"></div><span>Quantum Algorithms</span><div class="snode-bar"><div style="width:92%"></div></div></div>
+                  <div class="snode" style="--sc:#9d4edd"><div class="snode-dot"></div><span>Deep Learning</span><div class="snode-bar"><div style="width:90%"></div></div></div>
+                  <div class="snode" style="--sc:#00e5ff"><div class="snode-dot"></div><span>Python / PyTorch</span><div class="snode-bar"><div style="width:95%"></div></div></div>
+                  <div class="snode" style="--sc:#9d4edd"><div class="snode-dot"></div><span>Post-Quantum Crypto</span><div class="snode-bar"><div style="width:88%"></div></div></div>
+                  <div class="snode" style="--sc:#00ff88"><div class="snode-dot"></div><span>Penetration Testing</span><div class="snode-bar"><div style="width:87%"></div></div></div>
+                  <div class="snode" style="--sc:#00e5ff"><div class="snode-dot"></div><span>Cirq / Qiskit</span><div class="snode-bar"><div style="width:89%"></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Terminal -->
+    <section id="night-contact" class="layer-section terminal-section">
+      <div class="container">
+        <div class="layer-label"><span class="layer-num">04</span><span class="layer-name">SECURE CHANNEL — CONTACT</span></div>
+        <h2 class="section-title" style="margin-bottom:3rem">Initiate <span class="grad">Connection</span></h2>
+        <div class="terminal-wrap reveal">
+          <div class="terminal-titlebar">
+            <span class="ttb-dot red"></span><span class="ttb-dot yellow"></span><span class="ttb-dot green"></span>
+            <span class="ttb-title mono">quantum-secure-shell — garrvsipani@jh.edu</span>
+          </div>
+          <div class="terminal-body" id="terminal-body">
+            <div class="t-line"><span class="t-prompt">system@quantum ~$</span> <span class="t-out">Loading secure channel...</span></div>
+            <div class="t-line"><span class="t-prompt">system@quantum ~$</span> <span class="t-out cyan">CONNECTION ESTABLISHED. Auth: Johns Hopkins EDU</span></div>
+          </div>
+          <div class="terminal-input-row">
+            <span class="t-prompt">visitor@quantum ~$</span>
+            <span class="t-quote">"</span>
+            <input type="text" id="terminal-name" class="t-input" placeholder="Your name" autocomplete="off"/>
+            <span class="t-sep">|</span>
+            <input type="text" id="terminal-msg" class="t-input t-input--msg" placeholder="Your message..." autocomplete="off"/>
+            <span class="t-quote">"</span>
+            <button id="terminal-send" class="t-send">SEND ↵</button>
+          </div>
+          <div id="terminal-response" class="terminal-response hidden"></div>
+        </div>
+        <div class="contact-quick reveal" data-delay="200">
+          <a href="mailto:garrvsipani@gmail.com" class="cq-link">Email</a>
+          <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" rel="noopener" class="cq-link">LinkedIn</a>
+          <a href="https://github.com/garrv105" target="_blank" rel="noopener" class="cq-link">GitHub</a>
+          <a href="https://ieeexplore.ieee.org/document/11393885" target="_blank" rel="noopener" class="cq-link">IEEE Paper</a>
+        </div>
+      </div>
+    </section>
+
+    <footer id="footer">
+      <div class="container footer-inner">
+        <p class="mono small muted">© 2026 GARRV SIPANI · QUANTUM AI RESEARCHER · JOHNS HOPKINS UNIVERSITY</p>
+        <p class="mono small muted" style="margin-top:4px">Built with Three.js · GSAP · WebGL</p>
+      </div>
+    </footer>
+
+  </div><!-- /world-night -->
+
+  <!-- Scripts — order matters -->
+  <script src="day.js"></script>
+  <script src="brain.js"></script>
+  <script src="avatar.js"></script>
+  <script src="night.js"></script>
+  <script src="audio.js"></script>
+  <script src="main.js"></script>
+  <script src="inception-main.js"></script>
+</body>
+</html>
