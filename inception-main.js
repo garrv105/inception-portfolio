@@ -277,17 +277,10 @@
       clearInterval(progIv);
       setPct(100);
 
-      // Glitch flash sequence
-      if (glitch) {
-        const seq = [0.9, 0, 0.7, 0, 0.85, 0];
-        let gi = 0;
-        const gIv = setInterval(() => {
-          glitch.style.opacity = seq[gi++];
-          if (gi >= seq.length) clearInterval(gIv);
-        }, 60);
-      }
+      // Clean fade-out — no glitch
+      if (glitch) glitch.style.opacity = '0';
 
-      // Sphere explodes outward
+      // Sphere fades out cleanly
       fadeMat(wireMat,  'opacity', 0, 0.4);
       fadeMat(solidMat, 'opacity', 0, 0.4);
       fadeMat(coreMat,  'opacity', 0, 0.3);
@@ -439,87 +432,113 @@
     tl.to(transLayer, { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 1.5);
   }
 
-  // "Descend" — HORIZONTAL SCAN WIPE
-  // A solid cyan-white scan line races from left to right across the screen,
-  // wiping the night world away. Then the day world snaps in clean.
-  // Completely different feel from the Arise particle implosion.
+  // "Descend" — OUTWARD PARTICLE BURST + WHITE FLASH
+  // Particles explode outward from the screen center as the world
+  // dissolves into a white flash, then the day world fades back in.
   function enterDayMode() {
     if (isTransitioning || currentMode === 'day') return;
     isTransitioning = true;
     showVoiceFeedback('descend');
+    initTransCanvas();
+    if (!transScene) { completeTransition('day'); return; }
 
-    // No Three.js canvas needed — pure CSS + GSAP wipe
     transLayer.classList.add('active');
     gsap.set(transLayer, { opacity: 1, backgroundColor: 'transparent' });
 
-    // Build the scan-wipe overlay: a set of horizontal stripes that
-    // fly in from the left at staggered speeds, covering the screen,
-    // then retracting right revealing the day world
-    const STRIPES = 12;
-    const stripeEls = [];
-    for (let i = 0; i < STRIPES; i++) {
-      const el = document.createElement('div');
-      const h  = 100 / STRIPES;
-      const isCyanStripe = i % 3 === 0;
-      Object.assign(el.style, {
-        position: 'absolute',
-        left: '-100%',
-        top:  `${i * h}%`,
-        width: '100%',
-        height: `${h + 0.3}%`,
-        background: isCyanStripe
-          ? 'linear-gradient(90deg, rgba(37,99,235,0.95), rgba(0,229,255,0.9))'
-          : 'linear-gradient(90deg, rgba(15,23,42,0.98), rgba(37,99,235,0.85))',
-        zIndex: 2,
-      });
-      transLayer.appendChild(el);
-      stripeEls.push(el);
+    // ── Outward burst particles ────────────────────────────
+    const COUNT_D = 1800;
+    const posD    = new Float32Array(COUNT_D * 3);
+    const velD    = new Float32Array(COUNT_D * 3);
+    const colsD   = new Float32Array(COUNT_D * 3);
+    // Day colours: warm white, cyan, soft gold
+    const DAY_COLS = [[1, 1, 1], [0, 0.9, 1], [1, 0.82, 0.35]];
+
+    for (let i = 0; i < COUNT_D; i++) {
+      // Start near center with slight jitter
+      posD[i*3]   = (Math.random() - 0.5) * 6;
+      posD[i*3+1] = (Math.random() - 0.5) * 6;
+      posD[i*3+2] = (Math.random() - 0.5) * 6;
+      // Velocity: outward burst
+      const ang = Math.random() * Math.PI * 2;
+      const el  = Math.acos(2 * Math.random() - 1);
+      const spd = 1.2 + Math.random() * 2.2;
+      velD[i*3]   = spd * Math.sin(el) * Math.cos(ang);
+      velD[i*3+1] = spd * Math.sin(el) * Math.sin(ang);
+      velD[i*3+2] = spd * Math.cos(el);
+      const c = DAY_COLS[i % DAY_COLS.length];
+      colsD[i*3] = c[0]; colsD[i*3+1] = c[1]; colsD[i*3+2] = c[2];
     }
-
-    // Bright leading edge that sweeps right
-    const edgeEl = document.createElement('div');
-    Object.assign(edgeEl.style, {
-      position: 'absolute', top: 0, bottom: 0,
-      width: '3px',
-      background: 'linear-gradient(to bottom, transparent, #00e5ff, #fff, #00e5ff, transparent)',
-      left: '-3px', zIndex: 5, boxShadow: '0 0 20px rgba(0,229,255,0.9)',
+    const ptGeoD = new THREE.BufferGeometry();
+    ptGeoD.setAttribute('position', new THREE.BufferAttribute(posD, 3));
+    ptGeoD.setAttribute('color',    new THREE.BufferAttribute(colsD, 3));
+    const ptMatD = new THREE.PointsMaterial({
+      size: 0.7, vertexColors: true, transparent: true, opacity: 0, sizeAttenuation: true
     });
-    transLayer.appendChild(edgeEl);
+    const ptsD = new THREE.Points(ptGeoD, ptMatD);
+    transScene.add(ptsD);
 
+    // Central flash sphere that expands and brightens
+    const flashD = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 })
+    );
+    transScene.add(flashD);
+
+    let dFrame = 0;
+    function animDescend() {
+      transAF = requestAnimationFrame(animDescend);
+      dFrame++;
+      const t = dFrame / 60;
+
+      // Accelerate particles outward
+      const pa = ptGeoD.attributes.position.array;
+      for (let i = 0; i < COUNT_D; i++) {
+        pa[i*3]   += velD[i*3];
+        pa[i*3+1] += velD[i*3+1];
+        pa[i*3+2] += velD[i*3+2];
+        velD[i*3]   *= 1.04;
+        velD[i*3+1] *= 1.04;
+        velD[i*3+2] *= 1.04;
+      }
+      ptGeoD.attributes.position.needsUpdate = true;
+
+      // Particles fade in fast, then out
+      if (t < 0.2)       ptMatD.opacity = (t / 0.2) * 0.85;
+      else if (t < 0.55) ptMatD.opacity = 0.85;
+      else               ptMatD.opacity = Math.max(0, 0.85 - (t - 0.55) * 2.4);
+
+      // Flash sphere grows to fill screen
+      if (t > 0.4) {
+        const ft = Math.min((t - 0.4) / 0.5, 1);
+        flashD.scale.setScalar(1 + ft * 80);
+        flashD.material.opacity = ft * 0.92;
+      }
+
+      transRenderer.render(transScene, transCamera);
+    }
+    animDescend();
+
+    // ── DESCEND text ────────────────────────────────────
     transText.className = 'day-text';
-    gsap.set(transText, { opacity: 0, x: -40 });
+    gsap.set(transText, { opacity: 0, scale: 1.4, y: 0 });
     transText.textContent = 'D E S C E N D';
 
     const tl = gsap.timeline({ onComplete: () => {
-      stripeEls.forEach(el => el.remove());
-      edgeEl.remove();
+      cancelAnimationFrame(transAF);
+      transScene.remove(ptsD); transScene.remove(flashD);
+      ptGeoD.dispose(); ptMatD.dispose();
       completeTransition('day');
     }});
 
-    // Phase 1: stripes slam in from left (0→0.5s)
-    tl.to(stripeEls, {
-      left: '0%', duration: 0.35,
-      stagger: { each: 0.025, from: 'start' },
-      ease: 'power4.in',
-    }, 0);
+    // Text contracts in from large
+    tl.to(transText, { opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' }, 0.1);
+    tl.to(transText, { opacity: 0, scale: 0.6, duration: 0.35, ease: 'power2.in' }, 0.7);
 
-    // Edge sweeps across (0→0.5s)
-    tl.to(edgeEl, { left: '100%', duration: 0.5, ease: 'power2.inOut' }, 0);
+    // White overlay fades in to cover the burst
+    tl.to(transLayer, { backgroundColor: 'rgba(255,255,255,0.96)', duration: 0.4, ease: 'power2.in' }, 0.55);
 
-    // Text fades in from left
-    tl.to(transText, { opacity: 1, x: 0, duration: 0.3, ease: 'power2.out' }, 0.15);
-
-    // Brief hold
-    tl.to({}, { duration: 0.25 });
-
-    // Phase 2: stripes retract right (reveal day world)
-    tl.to(transText, { opacity: 0, x: 40, duration: 0.2, ease: 'power2.in' }, '+=0');
-    tl.to(stripeEls, {
-      left: '100%', duration: 0.35,
-      stagger: { each: 0.02, from: 'end' },
-      ease: 'power4.out',
-    }, '-=0.15');
-    tl.to(transLayer, { opacity: 0, duration: 0.2 }, '-=0.1');
+    // Hold, then fade to transparent (day world underneath)
+    tl.to(transLayer, { opacity: 0, duration: 0.45, ease: 'power2.out' }, 1.05);
   }
 
   // ── Shared: swap worlds after transition finishes ─────────
