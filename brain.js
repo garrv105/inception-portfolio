@@ -736,4 +736,31 @@
   window.__brainCamera = camera;
   window.__quantumNodes = nodes.length;
 
+  // ── Night boot hook ──────────────────────────────────────
+  // Called by inception-main.js when "Arise" fires so the assembly
+  // sequence runs fresh even though scripts already loaded once.
+  window.__nightBootBrain = function () {
+    // Reset assembly state and restart
+    assemblyActive = false;
+    assemblyOrder.forEach(node => {
+      node.assembling = false;
+      node.assembled  = false;
+      node.assembleT  = 0;
+      node.mesh.scale.setScalar(0.001);
+      node.mesh.material.opacity = 0;
+      node.glow.material.opacity = 0;
+      node.mesh.position.copy(node.assembleFrom);
+      node.glow.position.copy(node.assembleFrom);
+    });
+    // Reset connections + qubit rings + core
+    connections.forEach(c => { c.line.material.opacity = 0; });
+    qubitRings.forEach(q => { q.ringMat.opacity = 0; q.beadMat.opacity = 0; });
+    coreOrb.material.opacity = 0;
+    coreGlowMesh.material.opacity = 0;
+    const heroEntryEl = document.getElementById('hero-entry');
+    if (heroEntryEl) heroEntryEl.style.opacity = '0';
+    // Restart
+    startAssembly();
+  };
+
 })();
