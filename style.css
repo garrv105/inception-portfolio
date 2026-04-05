@@ -1510,3 +1510,100 @@ body { overflow-x: hidden; }
   transition: color 0.3s;
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE — COMPREHENSIVE RESPONSIVE OVERHAUL
+   All breakpoints: 768px (tablet/phone) and 480px (small phone)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Touch devices: hide custom cursor, show native ─────── */
+@media (hover: none) and (pointer: coarse) {
+  body, * { cursor: auto !important; }
+  #day-cursor, #day-cursor-ring,
+  #cursor-dot, #cursor-ring { display: none !important; }
+}
+
+/* ── 768px — tablets and phones ─────────────────────────── */
+@media (max-width: 768px) {
+
+  /* --- DAY HERO --- */
+  .day-hero {
+    grid-template-columns: 1fr;
+    min-height: 100dvh;
+    padding-top: var(--nav-h);
+    align-items: flex-end;
+  }
+  .day-hero-content {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 1.5rem 1.25rem 3rem;
+    background: linear-gradient(
+      to top,
+      rgba(3,10,20,0.97) 60%,
+      rgba(3,10,20,0.75) 85%,
+      transparent
+    );
+    backdrop-filter: none;
+    z-index: 5;
+    justify-content: flex-end;
+    min-height: 55vh;
+  }
+  .day-hero-name {
+    font-size: clamp(2.2rem, 9vw, 3.4rem);
+    margin-bottom: 0.5rem;
+    line-height: 1;
+  }
+  .day-hero-role  { font-size: 0.9rem; margin-bottom: 0.75rem; }
+  .day-hero-tagline { font-size: 0.82rem; max-width: 100%; margin-bottom: 1.25rem; }
+  .day-hero-cta   { gap: 10px; margin-bottom: 1.5rem; }
+  .btn-day-primary, .btn-day-secondary {
+    padding: 11px 20px;
+    font-size: 0.8rem;
+  }
+  .day-hero-stats { gap: 1.25rem; }
+  .stat-val  { font-size: 1.4rem; }
+  .day-voice-hint { left: 50%; transform: translateX(-50%); bottom: 1rem; text-align: center; }
+
+  /* Globe still fills the screen — just sits behind the content */
+  #day-canvas { z-index: 1; opacity: 0.8; }
+  .globe-metrics { display: none; }
+  .feed-ticker   { right: 0; left: 0; }
+
+  /* --- SECTIONS — day world --- */
+  .day-section { padding: 3rem 1.25rem; }
+  .day-section-title { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+  .competencies-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .skills-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+  .certs-grid  { grid-template-columns: 1fr; }
+  .about-grid  { grid-template-columns: 1fr; }
+  .contact-layout { grid-template-columns: 1fr; }
+  .cf-row { grid-template-columns: 1fr; }
+  .timeline-header { flex-direction: column; gap: 0.2rem; }
+  .timeline-date { padding-left: 0; font-size: 0.72rem; }
+  .timeline-card { padding: 1rem 1.1rem; }
+  .timeline-card h3 { font-size: 0.92rem; }
+
+  /* --- VOICE DEBUG PANEL --- */
+  .voice-debug {
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    bottom: 0.75rem;
+    font-size: 0.9em;
+  }
+
+  /* --- SYSTEM STATUS BAR --- */
+  .sys-status-bar { display: none; }
+}
+
+/* ── 480px — small phones ────────────────────────────────── */
+@media (max-width: 480px) {
+  .day-hero-name { font-size: clamp(1.9rem, 10vw, 2.8rem); }
+  .day-hero-content { padding: 1.25rem 1rem 2.5rem; }
+  .day-hero-stats { flex-direction: column; gap: 0.6rem; }
+  .day-hero-cta { flex-direction: column; }
+  .btn-day-primary, .btn-day-secondary { width: 100%; text-align: center; }
+  .competencies-grid { grid-template-columns: 1fr; }
+  .certs-grid  { grid-template-columns: 1fr; }
+  .day-section { padding: 2.5rem 1rem; }
+}
