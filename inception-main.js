@@ -54,164 +54,477 @@
   function showEl(el)  { if (el) { el.style.display = ''; el.classList.remove('hidden'); } }
   function hideEl(el)  { if (el) { el.style.display = 'none'; el.classList.add('hidden'); } }
 
+  // ══════════════════════════════════════════════════════════  //  NEURAL SPHERE LOADER + 3D TRANSITIONS
+  // ═══════════════════════════════════════════════════════════  //  NEURAL SPHERE LOADER + 3D TRANSITIONS
   // ═══════════════════════════════════════════════════════════
-  //  COIN LOADER
-  // ═══════════════════════════════════════════════════════════
-  function startCoinLoader() {
-    if (!loader) { revealDayWorld(); return; }
 
-    let pct = 0;
-    const iv = setInterval(() => {
-      pct += 1.4;
-      if (progressBar) progressBar.style.width = Math.min(pct, 88) + '%';
-      if (pct >= 88) clearInterval(iv);
-    }, 30);
-
-    // Crack phase
-    setTimeout(() => {
-      if (progressBar) progressBar.style.width = '100%';
-      if (coin) coin.classList.add('cracking');
-      if (coinCracks) coinCracks.classList.add('visible');
-
-      // Shatter phase
-      setTimeout(() => {
-        if (coin) coin.classList.add('shattered');
-        if (coinCracks) coinCracks.style.opacity = '0';
-        spawnCoinShards();
-
-        // Fade out loader
-        setTimeout(() => {
-          loader.classList.add('fade-out');
-          setTimeout(() => {
-            loader.style.display = 'none';
-            revealDayWorld();
-          }, 700);
-        }, 850);
-      }, 650);
-    }, 2600);
+  // ─── Helper: build a Three.js renderer on a canvas ────────
+  function makeRenderer(canvas) {
+    const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    r.setClearColor(0x000000, 0);
+    return r;
   }
 
-  function spawnCoinShards() {
-    if (!coinShards) return;
-    coinShards.innerHTML = '';
-    const COLORS = ['#2563eb','#0ea5e9','#00e5ff','#9d4edd','#ffffff','#ff2d87'];
-    const COUNT = 24;
+  // ═══════════════════════════════════════════════════════════
+  //  NEURAL SPHERE LOADER
+  //  A dense icosphere wireframe assembles from the center,
+  //  orbited by qubit rings. Boot log types below. At end,
+  //  a bright flash clears and day world appears.
+  // ═══════════════════════════════════════════════════════════
+  function startLoader() {
+    const loaderEl = document.getElementById('sys-loader');
+    if (!loaderEl) { revealDayWorld(); return; }
 
-    for (let i = 0; i < COUNT; i++) {
-      const el  = document.createElement('div');
-      el.className = 'shard-piece';
-      const sz  = 8  + Math.random() * 30;
-      const ang = (i / COUNT) * Math.PI * 2;
-      const d   = 90 + Math.random() * 130;
-      Object.assign(el.style, {
-        width:  sz + 'px',
-        height: sz * (0.35 + Math.random() * 0.65) + 'px',
-        left:   (100 - sz / 2 + Math.cos(ang) * d / 3) + 'px',
-        top:    (100 - sz / 2 + Math.sin(ang) * d / 3) + 'px',
-        background: COLORS[i % COLORS.length],
-        opacity: '0.9',
-        '--tx': (Math.cos(ang) * d) + 'px',
-        '--ty': (Math.sin(ang) * d) + 'px',
-        '--r':  ((Math.random() - 0.5) * 360) + 'deg',
-        animationDelay: (i * 0.018) + 's',
-      });
-      coinShards.appendChild(el);
+    const canvas  = document.getElementById('loader-canvas');
+    const logEl   = document.getElementById('sl-boot-log');
+    const fillEl  = document.createElement('div');
+    fillEl.className = 'sl-progress-fill';
+    const barEl   = document.querySelector('.sl-progress-bar');
+    if (barEl) barEl.appendChild(fillEl);
+    const pctEl   = document.getElementById('sl-pct');
+    const glitch  = document.getElementById('sl-glitch');
+
+    if (!canvas) { revealDayWorld(); return; }
+
+    // ── Three.js scene ──────────────────────────────────────
+    const scene    = new THREE.Scene();
+    const camera   = new THREE.PerspectiveCamera(50, canvas.offsetWidth / canvas.offsetHeight || 1.6, 0.1, 200);
+    camera.position.set(0, 0, 32);
+    const renderer = makeRenderer(canvas);
+    renderer.setSize(canvas.offsetWidth || window.innerWidth, canvas.offsetHeight || window.innerHeight);
+
+    scene.add(new THREE.AmbientLight(0x111133, 2));
+    const ptCyan = new THREE.PointLight(0x00e5ff, 8, 80);
+    ptCyan.position.set(20, 20, 20);
+    scene.add(ptCyan);
+    const ptPurp = new THREE.PointLight(0x9d4edd, 6, 80);
+    ptPurp.position.set(-20, -10, 10);
+    scene.add(ptPurp);
+
+    // Central icosphere — wireframe + solid layers
+    const icoGeo  = new THREE.IcosahedronGeometry(7, 3);
+    const solidMat = new THREE.MeshStandardMaterial({
+      color: 0x0a0a2a, emissive: 0x001133,
+      emissiveIntensity: 1, metalness: 0.4, roughness: 0.5,
+      transparent: true, opacity: 0,
+    });
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0x00e5ff, wireframe: true,
+      transparent: true, opacity: 0,
+    });
+    const sphere     = new THREE.Mesh(icoGeo, solidMat);
+    const sphereWire = new THREE.Mesh(icoGeo, wireMat);
+    scene.add(sphere, sphereWire);
+
+    // Inner glow core
+    const coreGeo = new THREE.SphereGeometry(2.2, 20, 20);
+    const coreMat = new THREE.MeshBasicMaterial({
+      color: 0xff2d87, transparent: true, opacity: 0,
+    });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    scene.add(core);
+
+    // Qubit orbital rings (3)
+    const rings = [];
+    [[9.5, 0x00e5ff, Math.PI/2.5, 0], [11, 0x9d4edd, Math.PI/4, 1.2], [12.5, 0x00ff88, Math.PI*0.38, -0.6]].forEach(([r, col, rx, ry]) => {
+      const ringGeo = new THREE.TorusGeometry(r, 0.08, 8, 100);
+      const ringMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0 });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = rx; ring.rotation.y = ry;
+      scene.add(ring);
+      // Bead
+      const bead = new THREE.Mesh(
+        new THREE.SphereGeometry(0.25, 8, 8),
+        new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0 })
+      );
+      ring.add(bead);
+      bead.position.set(r, 0, 0);
+      rings.push({ ring, bead, r, mat: ringMat, beadMat: bead.material, angle: Math.random()*Math.PI*2, speed: (0.008 + Math.random()*0.005) * (Math.random()>0.5?1:-1) });
+    });
+
+    // Particle cloud
+    const pcCount = 600;
+    const pcPos   = new Float32Array(pcCount * 3);
+    const pcCol   = new Float32Array(pcCount * 3);
+    for (let i = 0; i < pcCount; i++) {
+      const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+      const r  = 14 + Math.random()*8;
+      pcPos[i*3]   = r*Math.sin(ph)*Math.cos(th);
+      pcPos[i*3+1] = r*Math.sin(ph)*Math.sin(th);
+      pcPos[i*3+2] = r*Math.cos(ph);
+      const t = Math.random();
+      pcCol[i*3]   = t*0 + (1-t)*0.6;
+      pcCol[i*3+1] = t*0.9 + (1-t)*0.2;
+      pcCol[i*3+2] = 1.0;
     }
+    const pcGeo = new THREE.BufferGeometry();
+    pcGeo.setAttribute('position', new THREE.BufferAttribute(pcPos, 3));
+    pcGeo.setAttribute('color',    new THREE.BufferAttribute(pcCol, 3));
+    const pcMesh = new THREE.Points(pcGeo, new THREE.PointsMaterial({
+      size: 0.3, vertexColors: true, transparent: true, opacity: 0, sizeAttenuation: true,
+    }));
+    scene.add(pcMesh);
+
+    // ── Animation loop ──────────────────────────────────────
+    let frame = 0, loaderAF = null;
+    function loaderLoop() {
+      loaderAF = requestAnimationFrame(loaderLoop);
+      frame++;
+      const t = frame * 0.01;
+      sphere.rotation.y     = t * 0.18;
+      sphere.rotation.x     = Math.sin(t * 0.12) * 0.15;
+      sphereWire.rotation.copy(sphere.rotation);
+      pcMesh.rotation.y     = t * 0.06;
+      ptCyan.position.x     = 20 * Math.cos(t * 0.4);
+      ptCyan.position.z     = 20 * Math.sin(t * 0.4);
+      const pulse = 0.7 + 0.3 * Math.sin(t * 2.2);
+      core.scale.setScalar(pulse);
+      rings.forEach(q => {
+        q.angle += q.speed;
+        q.bead.position.set(q.r * Math.cos(q.angle), q.r * Math.sin(q.angle), 0);
+        q.ring.rotation.z += 0.001;
+      });
+      renderer.render(scene, camera);
+    }
+    loaderLoop();
+
+    // ── Tween helper ─────────────────────────────────────────
+    function fadeMat(mat, prop, to, dur) {
+      const start = mat[prop], startT = performance.now();
+      function tick() {
+        const p = Math.min((performance.now()-startT)/(dur*1000), 1);
+        mat[prop] = start + (to - start) * (1 - Math.pow(1-p, 3));
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    // ── Boot sequence ─────────────────────────────────────────
+    let pct = 0;
+    function setPct(val) {
+      pct = val;
+      if (fillEl) fillEl.style.width = val + '%';
+      if (pctEl)  pctEl.textContent  = Math.round(val) + '%';
+    }
+
+    const BOOT_LINES = [
+      [0,    '',    'INITIALIZING NEURAL MATRIX...', 30],
+      [400,  'ok',  'QUANTUM COHERENCE ACHIEVED',     0 ],
+      [750,  '',    'LOADING SECURITY PROTOCOLS...',  25],
+      [1400, 'ok',  'THREAT DETECTION: ARMED',         0 ],
+      [1700, '',    'CALIBRATING AI INFERENCE...',    22],
+      [2350, 'ok',  'SYSTEM NOMINAL',                  0 ],
+      [2700, 'info','GARRVSIPANI@JOHNSSHOPKINS.EDU',  0 ],
+    ];
+
+    let lastLine = null;
+    BOOT_LINES.forEach(([delay, cls, text, speed]) => {
+      setTimeout(() => {
+        if (lastLine) lastLine.querySelector('.sl-cur')?.remove();
+        const el = document.createElement('div');
+        const prefix = cls === 'ok' ? '[ OK ] ' : cls === 'info' ? '[ >> ] ' : '[ .. ] ';
+        el.className = cls === 'ok' ? 'sl-ok' : cls === 'info' ? 'sl-info' : '';
+        if (logEl) { logEl.appendChild(el); lastLine = el; }
+
+        // Typewriter
+        let i = 0, full = prefix + text;
+        const cursor = document.createElement('span');
+        cursor.className = 'sl-cur'; cursor.textContent = '▋';
+        el.appendChild(cursor);
+        if (speed > 0) {
+          const iv = setInterval(() => {
+            el.insertBefore(document.createTextNode(full[i] || ''), cursor);
+            if (++i >= full.length) { clearInterval(iv); cursor.remove(); }
+          }, speed);
+        } else {
+          el.insertBefore(document.createTextNode(full), cursor);
+          cursor.remove();
+        }
+        // Keep last 3 lines visible
+        while (logEl && logEl.children.length > 3) logEl.removeChild(logEl.firstChild);
+      }, delay);
+    });
+
+    // ── Progressive reveal of sphere ──────────────────────────
+    // Phase 1 (0-0.8s): wireframe fades in, core starts glowing
+    setTimeout(() => {
+      fadeMat(wireMat,  'opacity', 0.55, 0.8);
+      fadeMat(solidMat, 'opacity', 0.08, 1.0);
+      fadeMat(coreMat,  'opacity', 0.6,  0.9);
+    }, 200);
+
+    // Phase 2 (0.8s): rings and particles materialise
+    setTimeout(() => {
+      rings.forEach((q, i) => {
+        setTimeout(() => {
+          fadeMat(q.mat,     'opacity', 0.45, 0.5);
+          fadeMat(q.beadMat, 'opacity', 0.95, 0.4);
+        }, i * 200);
+      });
+      fadeMat(pcMesh.material, 'opacity', 0.5, 0.8);
+    }, 800);
+
+    // ── Progress fill ─────────────────────────────────────────
+    const progIv = setInterval(() => {
+      setPct(Math.min(pct + 1.1, 90));
+      if (pct >= 90) clearInterval(progIv);
+
+    }, 28);
+
+    // ── Final phase (3.2s): glitch flash + launch ──────────────
+    setTimeout(() => {
+      clearInterval(progIv);
+      setPct(100);
+
+      // Glitch flash sequence
+      if (glitch) {
+        const seq = [0.9, 0, 0.7, 0, 0.85, 0];
+        let gi = 0;
+        const gIv = setInterval(() => {
+          glitch.style.opacity = seq[gi++];
+          if (gi >= seq.length) clearInterval(gIv);
+        }, 60);
+      }
+
+      // Sphere explodes outward
+      fadeMat(wireMat,  'opacity', 0, 0.4);
+      fadeMat(solidMat, 'opacity', 0, 0.4);
+      fadeMat(coreMat,  'opacity', 0, 0.3);
+      rings.forEach(q => {
+        fadeMat(q.mat,     'opacity', 0, 0.35);
+        fadeMat(q.beadMat, 'opacity', 0, 0.3);
+      });
+      fadeMat(pcMesh.material, 'opacity', 0, 0.4);
+
+      setTimeout(() => {
+        cancelAnimationFrame(loaderAF);
+        renderer.dispose();
+        loaderEl.classList.add('fade-out');
+        setTimeout(() => {
+          loaderEl.style.display = 'none';
+          revealDayWorld();
+        }, 650);
+      }, 450);
+
+    }, 3300);
   }
 
+  // ═══════════════════════════════════════════════════════════
+  //  REVEAL DAY WORLD — called after loader completes
+  // ═══════════════════════════════════════════════════════════
   function revealDayWorld() {
     updateNav();
     setupCursor();
     setupMobileNav();
     setupSmoothScroll();
     setupDayScrollReveal();
-    initVoice();   // ← start voice AFTER page is ready
+    if (window.DayScene) window.DayScene.start();
+    initVoice(); // start voice engine AFTER page is fully ready
   }
 
   // ═══════════════════════════════════════════════════════════
-  //  MODE TRANSITIONS
+  //  3D TRANSITIONS — particle warp via Three.js canvas
   // ═══════════════════════════════════════════════════════════
 
+  let transRenderer = null, transScene = null, transCamera = null, transAF = null;
+
+  function initTransCanvas() {
+    const canvas = document.getElementById('transition-canvas');
+    if (!canvas || transRenderer) return;
+    transScene    = new THREE.Scene();
+    transCamera   = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
+    transCamera.position.z = 80;
+    transRenderer = makeRenderer(canvas);
+    transRenderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  // "Arise" — deep space implosion: screen goes black, particles shoot inward from all sides
+  // then a quantum brain crystallises briefly before night world appears
   function enterNightMode() {
     if (isTransitioning || currentMode === 'night') return;
     isTransitioning = true;
-
     showVoiceFeedback('arise');
-    transText.textContent   = 'A  R  I  S  E';
-    transText.style.opacity = '0';
-    transText.style.transform = 'scale(0.8)';
-    buildTransitionGrid('night');
-    transLayer.classList.add('active');
+    initTransCanvas();
+    if (!transScene) { completeTransition('night'); return; }
 
-    const tl = gsap.timeline({ onComplete: () => completeTransition('night') });
-    tl.to(transLayer, { opacity: 1, duration: 0.1 });
-    tl.to(transText,  { opacity: 1, scale: 1.1, duration: 0.5, ease: 'power3.out' });
-    tl.to(transLayer, { backgroundColor: 'rgba(0,229,255,0.07)', duration: 0.25, yoyo: true, repeat: 1 }, '-=0.15');
-    tl.to(transText,  { opacity: 0, y: -30, scale: 0.9, duration: 0.3 }, '+=0.2');
-    tl.to(transShards.querySelectorAll('.shard'), {
-      opacity: 0, scale: 1.6,
-      x: () => (Math.random() - 0.5) * 400,
-      y: () => (Math.random() - 0.5) * 400,
-      rotation: () => (Math.random() - 0.5) * 180,
-      duration: 0.55, stagger: { each: 0.01, from: 'edges' }, ease: 'power3.in',
-    }, '-=0.2');
+    transLayer.classList.add('active');
+    gsap.set(transLayer, { opacity: 1 });
+
+    // Build particle implosion
+    const COUNT = 2000;
+    const pos   = new Float32Array(COUNT * 3);
+    const vel   = new Float32Array(COUNT * 3);
+    const cols  = new Float32Array(COUNT * 3);
+    const COLORS_NIGHT = [[0, 0.9, 1], [0.6, 0.2, 0.93], [0, 1, 0.53]];
+
+    for (let i = 0; i < COUNT; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const el  = Math.acos(2 * Math.random() - 1);
+      const r   = 120 + Math.random() * 80;
+      pos[i*3]   = r * Math.sin(el) * Math.cos(ang);
+      pos[i*3+1] = r * Math.sin(el) * Math.sin(ang);
+      pos[i*3+2] = r * Math.cos(el);
+      // Velocity toward center
+      vel[i*3]   = -pos[i*3]   * 0.04;
+      vel[i*3+1] = -pos[i*3+1] * 0.04;
+      vel[i*3+2] = -pos[i*3+2] * 0.04;
+      const c = COLORS_NIGHT[i % COLORS_NIGHT.length];
+      cols[i*3] = c[0]; cols[i*3+1] = c[1]; cols[i*3+2] = c[2];
+    }
+    const ptGeo = new THREE.BufferGeometry();
+    ptGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    ptGeo.setAttribute('color',    new THREE.BufferAttribute(cols, 3));
+    const ptMat = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, transparent: true, opacity: 0, sizeAttenuation: true });
+    const pts   = new THREE.Points(ptGeo, ptMat);
+    transScene.add(pts);
+
+    // Central flash sphere
+    const flashSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0 })
+    );
+    transScene.add(flashSphere);
+
+    let tFrame = 0;
+    function animArse() {
+      transAF = requestAnimationFrame(animArse);
+      tFrame++;
+      const t = tFrame / 60;
+
+      // Move particles inward
+      const posArr = pts.geometry.attributes.position.array;
+      for (let i = 0; i < COUNT; i++) {
+        posArr[i*3]   += vel[i*3];
+        posArr[i*3+1] += vel[i*3+1];
+        posArr[i*3+2] += vel[i*3+2];
+        // Slow down as they approach center
+        vel[i*3]   *= 0.975;
+        vel[i*3+1] *= 0.975;
+        vel[i*3+2] *= 0.975;
+      }
+      pts.geometry.attributes.position.needsUpdate = true;
+
+      // Fade in particles
+      if (t < 0.3)    ptMat.opacity = t / 0.3 * 0.9;
+      else if (t < 1) ptMat.opacity = 0.9;
+      else            ptMat.opacity = Math.max(0, 0.9 - (t-1) * 1.2);
+
+      // Flash sphere grows and fades
+      if (t > 0.8) {
+        const ft = (t - 0.8) / 0.5;
+        flashSphere.scale.setScalar(1 + ft * 15);
+        flashSphere.material.opacity = Math.max(0, 0.6 * (1 - ft));
+      }
+
+      transRenderer.render(transScene, transCamera);
+    }
+    animArse();
+
+    // Word
+    transText.className = '';
+    gsap.set(transText, { opacity: 0, scale: 0.5, y: 0 });
+    transText.textContent = 'A R I S E';
+
+    const tl = gsap.timeline({ onComplete: () => {
+      cancelAnimationFrame(transAF);
+      transScene.remove(pts); transScene.remove(flashSphere);
+      ptGeo.dispose(); ptMat.dispose();
+      completeTransition('night');
+    }});
+
+    tl.to(transText,  { opacity: 1, scale: 1, duration: 0.6, ease: 'power3.out' }, 0.3);
+    tl.to(transText,  { opacity: 0, scale: 1.4, duration: 0.4, ease: 'power2.in' }, 1.2);
+    tl.to(transLayer, { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 1.5);
   }
 
+  // "Descend" — white solar flare: blinding overexposure, then contracts to a point and clears
   function enterDayMode() {
     if (isTransitioning || currentMode === 'day') return;
     isTransitioning = true;
-
     showVoiceFeedback('descend');
-    transText.textContent   = 'D  E  S  C  E  N  D';
-    transText.style.opacity = '0';
-    transText.style.transform = 'scale(1.2)';
-    buildTransitionGrid('day');
+    initTransCanvas();
+    if (!transScene) { completeTransition('day'); return; }
+
     transLayer.classList.add('active');
+    gsap.set(transLayer, { opacity: 1 });
 
-    const tl = gsap.timeline({ onComplete: () => completeTransition('day') });
-    tl.to(transLayer, { opacity: 1, duration: 0.1 });
-    tl.to(transText,  { opacity: 1, scale: 1, duration: 0.45, ease: 'power2.out' });
-    tl.to(transLayer, { backgroundColor: 'rgba(37,99,235,0.07)', duration: 0.2, yoyo: true, repeat: 1 }, '-=0.1');
-    tl.to(transText,  { opacity: 0, y: 30, scale: 0.85, duration: 0.3 }, '+=0.2');
-    tl.to(transShards.querySelectorAll('.shard'), {
-      opacity: 0, scale: 1.4,
-      x: () => (Math.random() - 0.5) * 300,
-      y: () => (Math.random() - 0.5) * 300,
-      rotation: () => (Math.random() - 0.5) * 120,
-      duration: 0.5, stagger: { each: 0.01, from: 'center' }, ease: 'power2.in',
-    }, '-=0.2');
-  }
+    // Burst of white rays from center
+    const RAYS = 800;
+    const rPos  = new Float32Array(RAYS * 3);
+    const rVel  = new Float32Array(RAYS * 3);
+    const rCols = new Float32Array(RAYS * 3);
 
-  function buildTransitionGrid(toMode) {
-    transShards.innerHTML = '';
-    const COLS = 10, ROWS = 7;
-    const W = 100 / COLS, H = 100 / ROWS;
-
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const el = document.createElement('div');
-        el.className = 'shard';
-        const isNight = (toMode === 'night');
-        el.style.cssText = `
-          left:${c*W}%; top:${r*H}%;
-          width:${W+0.3}%; height:${H+0.3}%;
-          background:${isNight
-            ? `linear-gradient(${120+Math.random()*90}deg,rgba(0,229,255,${0.2+Math.random()*0.45}),rgba(157,78,221,${0.15+Math.random()*0.4}))`
-            : `linear-gradient(${110+Math.random()*80}deg,rgba(15,23,42,${0.3+Math.random()*0.4}),rgba(37,99,235,${0.2+Math.random()*0.35}))`
-          };
-          transform:scale(0.82) rotate(${(Math.random()-0.5)*10}deg);
-          opacity:0;
-        `;
-        transShards.appendChild(el);
-      }
+    for (let i = 0; i < RAYS; i++) {
+      rPos[i*3] = rPos[i*3+1] = rPos[i*3+2] = 0;
+      const ang = Math.random() * Math.PI * 2;
+      const el  = Math.acos(2 * Math.random() - 1);
+      const spd = 3 + Math.random() * 5;
+      rVel[i*3]   = Math.sin(el) * Math.cos(ang) * spd;
+      rVel[i*3+1] = Math.sin(el) * Math.sin(ang) * spd;
+      rVel[i*3+2] = Math.cos(el) * spd;
+      // White-blue gradient
+      const t = Math.random();
+      rCols[i*3]   = 0.8 + t * 0.2;
+      rCols[i*3+1] = 0.85 + t * 0.15;
+      rCols[i*3+2] = 1.0;
     }
-    gsap.to(transShards.querySelectorAll('.shard'), {
-      opacity: 1, scale: 1, duration: 0.32,
-      stagger: { each: 0.014, from: 'center', grid: 'auto' },
-      ease: 'power2.out',
+    const rGeo = new THREE.BufferGeometry();
+    rGeo.setAttribute('position', new THREE.BufferAttribute(rPos, 3));
+    rGeo.setAttribute('color',    new THREE.BufferAttribute(rCols, 3));
+    const rMat = new THREE.PointsMaterial({ size: 1.2, vertexColors: true, transparent: true, opacity: 0, sizeAttenuation: true });
+    const rays  = new THREE.Points(rGeo, rMat);
+    transScene.add(rays);
+
+    let tFrame2 = 0;
+    function animDescend() {
+      transAF = requestAnimationFrame(animDescend);
+      tFrame2++;
+      const t = tFrame2 / 60;
+      const rArr = rays.geometry.attributes.position.array;
+      for (let i = 0; i < RAYS; i++) {
+        rArr[i*3]   += rVel[i*3];
+        rArr[i*3+1] += rVel[i*3+1];
+        rArr[i*3+2] += rVel[i*3+2];
+        rVel[i*3]   *= 1.04;
+        rVel[i*3+1] *= 1.04;
+        rVel[i*3+2] *= 1.04;
+      }
+      rays.geometry.attributes.position.needsUpdate = true;
+      if (t < 0.25)     rMat.opacity = t / 0.25 * 0.95;
+      else if (t < 0.6) rMat.opacity = 0.95;
+      else              rMat.opacity = Math.max(0, 0.95 - (t - 0.6) * 2.5);
+      transRenderer.render(transScene, transCamera);
+    }
+    animDescend();
+
+    // White flash overlay
+    const overlay = document.createElement('div');
+    Object.assign(overlay.style, {
+      position:'absolute', inset:0, background:'#fff',
+      opacity:'0', zIndex:'8', pointerEvents:'none'
     });
+    transLayer.appendChild(overlay);
+
+    transText.className = 'day-text';
+    gsap.set(transText, { opacity: 0, scale: 1.5, y: 0 });
+    transText.textContent = 'D E S C E N D';
+
+    const tl2 = gsap.timeline({ onComplete: () => {
+      cancelAnimationFrame(transAF);
+      transScene.remove(rays);
+      rGeo.dispose(); rMat.dispose();
+      overlay.remove();
+      completeTransition('day');
+    }});
+    tl2.to(overlay,    { opacity: 0.7, duration: 0.2, ease: 'power3.in' }, 0);
+    tl2.to(transText,  { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out' }, 0.15);
+    tl2.to(overlay,    { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0.45);
+    tl2.to(transText,  { opacity: 0, scale: 0.7, y: 20, duration: 0.35, ease: 'power2.in' }, 0.9);
+    tl2.to(transLayer, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 1.1);
   }
 
+  // ── Shared: swap worlds after transition finishes ─────────
   function completeTransition(newMode) {
     currentMode = newMode;
     body.classList.remove('mode-day', 'mode-night');
@@ -235,17 +548,14 @@
     updateNav();
     window.scrollTo({ top: 0, behavior: 'instant' });
 
-    gsap.to(transLayer, {
-      opacity: 0, duration: 0.4, ease: 'power2.out',
-      onComplete: () => {
-        transLayer.classList.remove('active');
-        transLayer.style.backgroundColor = '';
-        transShards.innerHTML = '';
-        transText.style.opacity = '0';
-        transText.style.transform = '';
-        isTransitioning = false;
-      }
-    });
+    // Clean up transition layer
+    transLayer.classList.remove('active');
+    transLayer.style.backgroundColor = '';
+    if (transShards) transShards.innerHTML = '';
+    gsap.set(transText, { opacity: 0, scale: 1, y: 0 });
+    transText.textContent = '';
+    gsap.set(transLayer, { opacity: 0 });
+    isTransitioning = false;
   }
 
   // Return button (manual fallback in night mode)
@@ -284,24 +594,18 @@
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SR) {
-      // Browser doesn't support speech — hide mic button but keep return btn
       hideEl(voiceBtn());
       updateVoiceHint(false);
       console.info('[Voice] SpeechRecognition not supported in this browser.');
       return;
     }
 
-    // Request mic permission explicitly first (fixes "no default mic" in some browsers)
-    navigator.mediaDevices?.getUserMedia({ audio: true })
-      .then(() => {
-        console.info('[Voice] Microphone permission granted.');
-        buildRecognition(SR);
-      })
-      .catch(err => {
-        console.warn('[Voice] Mic permission denied:', err);
-        hideEl(voiceBtn());
-        updateVoiceHint(false);
-      });
+    // Start the speech engine directly — the Speech API handles its own
+    // microphone permission prompt. Do NOT gate on getUserMedia() because
+    // that can be blocked by iframes/HTTPS/sandbox and silently prevent
+    // the engine from ever starting.
+    console.info('[Voice] Initializing speech recognition...');
+    buildRecognition(SR);
   }
 
   function buildRecognition(SR) {
@@ -383,7 +687,7 @@
         return;
       }
       if (d) { d.setState('error'); d.log('err', 'Recognition error: ' + e.error); }
-      recogActive = false;
+      // Keep recogActive = true so onend will restart
       setTimeout(() => { if (d) d.setState('restart'); safeStart(); }, 1000);
     };
 
@@ -398,7 +702,8 @@
       }
     };
 
-    // Start immediately
+    // Mark active BEFORE first start so onend restarts correctly
+    recogActive = true;
     safeStart();
     updateVoiceHint(true);
     setupVoiceBtnClick();
@@ -585,6 +890,11 @@
     if (e.key === '`' || e.key === '~') toggleDebugPanel();
   });
 
+  // Nav mic pill also toggles panel
+  document.addEventListener('click', e => {
+    if (e.target?.closest('#nav-mic-status')) toggleDebugPanel();
+  });
+
   // Close button inside panel
   document.addEventListener('click', e => {
     if (e.target && (e.target.id === 'vd-close' || e.target.closest('#vd-close'))) {
@@ -618,6 +928,14 @@
     if (cfg.badge)  badge.classList.add(cfg.badge);
     stEl.textContent = cfg.text;
     badge.textContent = cfg.label;
+
+    // Sync nav mic status dot
+    const navDot   = document.getElementById('nms-dot');
+    const navLabel = document.getElementById('nms-label');
+    if (navDot) {
+      navDot.className = 'nms-dot' + (cfg.dot ? ' ' + cfg.dot : '');
+    }
+    if (navLabel) navLabel.textContent = cfg.text === 'IDLE' ? 'MIC' : cfg.text;
   }
 
   function dbgSetMode(mode) {
@@ -675,40 +993,74 @@
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
 
-    // If analyser already connected, just start drawing
-    if (analyser) {
-      drawWave(analyser, ctx, W, H);
-      return;
-    }
+    // If real analyser already connected, just restart draw loop
+    if (analyser) { drawWave(analyser, ctx, W, H); return; }
 
-    // Request mic stream for waveform
-    navigator.mediaDevices?.getUserMedia({ audio: true, video: false })
-      .then(stream => {
+    // Try to connect real mic for live waveform
+    const tryConnect = async () => {
+      try {
+        const stream   = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const source   = audioCtx.createMediaStreamSource(stream);
         analyser        = audioCtx.createAnalyser();
         analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.7;
         source.connect(analyser);
         drawWave(analyser, ctx, W, H);
-        dbgLog('info', 'Waveform connected to mic stream');
-      })
-      .catch(err => {
-        // Draw flat line if no mic
-        ctx.clearRect(0, 0, W, H);
-        ctx.strokeStyle = 'rgba(0,229,255,0.2)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, H / 2);
-        ctx.lineTo(W, H / 2);
-        ctx.stroke();
-        dbgLog('err', 'Waveform: ' + err.message);
-      });
+        dbgLog('info', 'Live mic waveform active');
+      } catch (err) {
+        // Mic blocked — draw an animated simulated waveform
+        dbgLog('info', 'No mic access — showing simulated waveform');
+        drawSimWave(ctx, W, H);
+      }
+    };
+    tryConnect();
   }
+
+  // Simulated waveform (when real mic not accessible)
+  function drawSimWave(ctx, W, H) {
+    let phase = 0;
+    function frame() {
+      if (!dbgOpen) return;
+      waveAF = requestAnimationFrame(frame);
+      phase += 0.08;
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = isCyanMode() ? 'rgba(0,229,255,0.12)' : 'rgba(37,99,235,0.15)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+
+      const grad = ctx.createLinearGradient(0,0,W,0);
+      if (isCyanMode()) {
+        grad.addColorStop(0,   'rgba(0,229,255,0.15)');
+        grad.addColorStop(0.5, 'rgba(0,229,255,0.6)');
+        grad.addColorStop(1,   'rgba(157,78,221,0.4)');
+      } else {
+        grad.addColorStop(0,   'rgba(37,99,235,0.2)');
+        grad.addColorStop(0.5, 'rgba(37,99,235,0.8)');
+        grad.addColorStop(1,   'rgba(14,165,233,0.4)');
+      }
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x++) {
+        const t  = x / W;
+        const a1 = Math.sin(t * Math.PI * 6  + phase)       * 10;
+        const a2 = Math.sin(t * Math.PI * 14 + phase * 1.7) * 5;
+        const a3 = Math.sin(t * Math.PI * 3  + phase * 0.5) * 7;
+        const y  = H/2 + a1 + a2 + a3;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    frame();
+  }
+
+  function isCyanMode() { return currentMode === 'night'; }
 
   function drawWave(analyser, ctx, W, H) {
     const bufLen  = analyser.frequencyBinCount;
     const dataArr = new Uint8Array(bufLen);
-    const isCyan  = () => currentMode === 'night';
+    const isCyan  = () => isCyanMode();
 
     function frame() {
       if (!dbgOpen) return;
@@ -788,7 +1140,7 @@
     showEl(voiceBtn());
     hideEl(returnBtn());
     updateNav();
-    startCoinLoader();
+    startLoader();
   }
 
   if (document.readyState === 'loading') {
