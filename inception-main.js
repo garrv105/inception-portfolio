@@ -583,6 +583,31 @@
     if (e.target && e.target.id === 'return-btn') enterDayMode();
   });
 
+  // ── Mobile tap buttons (touch devices — no voice API on iOS) ───
+  const mobileAriseBtn = document.getElementById('mobile-arise-btn');
+  if (mobileAriseBtn) {
+    mobileAriseBtn.addEventListener('click', () => {
+      if (currentMode !== 'day' || isTransitioning) return;
+      enterNightMode();
+    });
+  }
+  // Return-btn also works as tap-to-descend on touch
+  const returnBtn2 = document.getElementById('return-btn');
+  if (returnBtn2) {
+    returnBtn2.addEventListener('touchend', e => {
+      e.preventDefault();
+      enterDayMode();
+    }, { passive: false });
+  }
+  // Touch on brain canvas opens profile (no hover on mobile)
+  const brainCanvas = document.getElementById('brain-canvas');
+  if (brainCanvas) {
+    brainCanvas.addEventListener('touchend', e => {
+      e.preventDefault();
+      if (window.__triggerProfileReveal) window.__triggerProfileReveal();
+    }, { passive: false });
+  }
+
   // ═══════════════════════════════════════════════════════════
   //  VOICE ENGINE — fully persistent, handles both modes
   // ═══════════════════════════════════════════════════════════
