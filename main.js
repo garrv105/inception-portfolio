@@ -538,3 +538,175 @@
   setTimeout(runGlitch, 1500);
   setInterval(runGlitch, 7000);
 })();
+
+// ── Night boot hook ────────────────────────────────────────
+// Resets and restarts all main.js night-world systems:
+// boot HUD, quantum field canvas, avatar, scroll reveals,
+// terminal, profile overlay — everything that ran on first load
+// but needs to fire again when Arise is triggered lazily.
+window.__nightBootMain = function () {
+  // 1. Boot HUD — reset and restart typewriter sequence
+  (function () {
+    const hud = document.getElementById('boot-hud');
+    if (!hud) return;
+    hud.innerHTML = ''; // clear old lines
+    hud.style.opacity = '1';
+    hud.style.display = '';
+    // Re-run boot sequence from scratch
+    const LINES = [
+      [    0, 'QUANTUM NEURAL NETWORK v3.0',         '',    28 ],
+      [  320, '================================',     'dim',  0 ],
+      [  480, 'INITIALIZING QUBITS...',               '',    30 ],
+      [ 1100, 'SUPERPOSITION STATE: ACTIVE',          'ok',  22 ],
+      [ 1650, 'MAPPING NEURAL PATHWAYS...',           '',    26 ],
+      [ 2400, 'ENTANGLEMENT MATRIX: STABLE',          'ok',  22 ],
+      [ 2900, 'LOADING SECURITY PROTOCOLS...',        '',    24 ],
+      [ 3600, 'THREAT DETECTION: ARMED',              'ok',  22 ],
+      [ 4000, 'CALIBRATING QUANTUM INTERFERENCE...', '',    20 ],
+      [ 4900, 'COHERENCE TIME: 847us',               'ok',  22 ],
+      [ 5200, 'SYNCING AI NEURAL CLUSTERS...',        '',    24 ],
+      [ 5900, 'ALL SYSTEMS NOMINAL',                  'ok',  22 ],
+      [ 6300, '================================',     'dim',  0 ],
+      [ 6500, 'SYSTEM ONLINE -- CLICK TO ACCESS',     'ok',  20 ],
+    ];
+    const MAX_VISIBLE = 7;
+    const lineEls = [];
+
+    function typeLine(el, text, speed, done) {
+      if (speed === 0) { el.textContent = text; if (done) done(); return; }
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'boot-cursor';
+      el.appendChild(cursor);
+      const iv = setInterval(() => {
+        el.insertBefore(document.createTextNode(text[i]), cursor);
+        i++;
+        if (i >= text.length) { clearInterval(iv); cursor.remove(); if (done) done(); }
+      }, speed);
+    }
+
+    function addLine(text, cls, speed) {
+      const el = document.createElement('div');
+      el.className = 'boot-hud-line' + (cls ? ' ' + cls : '');
+      hud.appendChild(el);
+      lineEls.push(el);
+      if (lineEls.length > MAX_VISIBLE) {
+        lineEls.slice(0, lineEls.length - MAX_VISIBLE).forEach(old => { old.style.opacity = '0'; });
+      }
+      requestAnimationFrame(() => { el.classList.add('visible'); typeLine(el, text, speed); });
+    }
+
+    LINES.forEach(([delay, text, cls, speed]) => {
+      setTimeout(() => addLine(text, cls, speed), delay);
+    });
+
+    const last = LINES[LINES.length - 1];
+    const fadeAt = last[0] + last[1].length * last[3] + 2000;
+    setTimeout(() => {
+      hud.style.transition = 'opacity 1.2s ease';
+      hud.style.opacity = '0';
+      setTimeout(() => { hud.style.display = 'none'; }, 1400);
+    }, fadeAt);
+
+    // Reveal avatar after boot
+    setTimeout(() => {
+      if (window.__showHoloAvatar) window.__showHoloAvatar();
+    }, fadeAt - 800);
+  })();
+
+  // 2. Quantum field canvas — restart
+  (function () {
+    const canvas = document.getElementById('quantum-field-canvas');
+    if (!canvas || canvas.__qfStarted) return;
+    canvas.__qfStarted = true;
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize();
+    const chars = '01ψΩ∑∆⊗⊕≡Ψ∂∇αβγδ量子';
+    const colW  = 18;
+    let cols    = Math.floor(canvas.width / colW);
+    const drops = Array.from({ length: cols }, () => Math.random() * canvas.height / colW);
+    setInterval(() => {
+      cols = Math.floor(canvas.width / colW);
+      while (drops.length < cols) drops.push(0);
+      ctx.fillStyle = 'rgba(2,2,15,0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${colW - 2}px Space Mono, monospace`;
+      for (let i = 0; i < cols; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const r = Math.random();
+        if (r > 0.97)      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        else if (r > 0.65) ctx.fillStyle = 'rgba(0,229,255,0.25)';
+        else               ctx.fillStyle = 'rgba(157,78,221,0.15)';
+        ctx.fillText(char, i * colW, drops[i] * colW);
+        if (drops[i] * colW > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        else drops[i] += 0.35;
+      }
+    }, 45);
+  })();
+
+  // 3. Security canvas (matrix rain in about section)
+  (function () {
+    const canvas = document.getElementById('security-canvas');
+    if (!canvas || canvas.__scStarted) return;
+    canvas.__scStarted = true;
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = canvas.offsetWidth || window.innerWidth; canvas.height = canvas.offsetHeight || 600; }
+    resize();
+    const chars = '01アイウ∑∆ΩΨ∫∂∇⊗⊕';
+    const colW  = 16;
+    let cols    = Math.floor(canvas.width / colW);
+    const drops = Array.from({ length: cols }, () => Math.random() * canvas.height / colW);
+    setInterval(() => {
+      cols = Math.floor(canvas.width / colW);
+      while (drops.length < cols) drops.push(0);
+      ctx.fillStyle = 'rgba(2,2,10,0.04)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${colW - 2}px Space Mono, monospace`;
+      for (let i = 0; i < cols; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const r = Math.random();
+        if (r > 0.98)      ctx.fillStyle = '#ffffff';
+        else if (r > 0.7)  ctx.fillStyle = 'rgba(0,229,255,0.35)';
+        else               ctx.fillStyle = 'rgba(157,78,221,0.2)';
+        ctx.fillText(char, i * colW, drops[i] * colW);
+        if (drops[i] * colW > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        else drops[i] += 0.4;
+      }
+    }, 40);
+  })();
+
+  // 4. Night scroll reveals
+  (function () {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+      return;
+    }
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const delay = parseInt(e.target.dataset.delay || 0);
+          setTimeout(() => { e.target.classList.add('visible'); }, delay);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.06 });
+    document.querySelectorAll('.reveal').forEach(el => { el.classList.remove('visible'); obs.observe(el); });
+  })();
+
+  // 5. Layer labels
+  document.querySelectorAll('.layer-label').forEach(l => {
+    l.style.transition = 'opacity 0.8s ease';
+    l.style.opacity = '0';
+    setTimeout(() => { l.style.opacity = '1'; }, 500);
+  });
+
+  // 6. Profile overlay reset
+  const profileOverlay = document.getElementById('profile-overlay');
+  if (profileOverlay) {
+    profileOverlay.classList.add('hidden');
+    profileOverlay.classList.remove('visible');
+    const modal = document.getElementById('profile-modal');
+    if (modal) modal.classList.remove('active');
+  }
+};
