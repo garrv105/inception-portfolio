@@ -554,8 +554,7 @@
       showEl(returnBtn());
       if (window.DayScene) window.DayScene.stop();
       // Force brain canvas resize now that it's visible, then boot
-      if (window.__brainForceResize) window.__brainForceResize();
-      bootNightWorld(); // lazy-init the quantum brain only now
+      bootNightWorld(); // show the clean portfolio
     } else {
       worldNight?.classList.add('hidden');
       worldDay?.classList.remove('hidden');
@@ -1253,20 +1252,17 @@
   let nightWorldBooted = false;
 
   function bootNightWorld() {
-    // Allow re-boot every time Arise fires (reset flag)
     nightWorldBooted = true;
 
-    // Give the DOM a frame to fully show the night world
-    // then boot everything fresh
+    // Simple init: just show content + start scroll reveals + avatar
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        // 1. Force brain canvas to correct size
-        if (window.__brainForceResize) window.__brainForceResize();
+        // Scroll to top of night world
+        const nightWorld = document.getElementById('world-night');
+        if (nightWorld) nightWorld.scrollTop = 0;
+        window.scrollTo(0, 0);
 
-        // 2. Reset + restart the QNN node assembly sequence
-        if (window.__nightBootBrain) window.__nightBootBrain();
-
-        // 3. Boot HUD + canvases + scroll reveals + profile overlay
+        // Boot scroll reveals + show avatar
         if (window.__nightBootMain) window.__nightBootMain();
       });
     });
