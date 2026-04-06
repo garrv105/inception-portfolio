@@ -191,457 +191,326 @@
   </nav>
 
   <!-- ══════════════════════════════════════════════════
-       DAY WORLD — AI Cybersecurity Consultant
+       DAY WORLD — AI Cybersecurity Consultant (Cinematic)
   ══════════════════════════════════════════════════ -->
   <div id="world-day" class="world">
 
-    <!-- System Status Bar -->
-    <div class="sys-status-bar" id="sys-status-bar">
-      <div class="ssb-inner">
-        <span class="ssb-active"><span class="ssb-dot"></span> SYSTEM ACTIVE</span>
-        <span class="ssb-divider"></span>
-        <span class="ssb-item">Threat Level: <strong>MEDIUM</strong></span>
-        <span class="ssb-divider"></span>
-        <span class="ssb-item">AI Models Secured: <strong id="sb-models">847</strong></span>
-        <span class="ssb-divider"></span>
-        <span class="ssb-item">Monitored Endpoints: <strong id="sb-endpoints">12,400</strong></span>
-        <span class="ssb-divider"></span>
-        <span class="ssb-item">Uptime: <strong>99.98%</strong></span>
-        <span class="ssb-divider"></span>
-        <span class="ssb-realtime" id="sb-realtime">REAL-TIME</span>
+    <!-- ═══ NAV ═══ -->
+    <nav class="al-nav" id="al-nav">
+      <span class="al-nav-name">Garrv Sipani</span>
+      <span class="al-nav-clock mono" id="al-clock">00:00 AM EST</span>
+      <a href="mailto:garrvsipani@gmail.com" class="al-nav-email">garrvsipani@gmail.com</a>
+      <div class="al-nav-links">
+        <a href="#al-experience">Work,</a>
+        <a href="#al-about">About,</a>
+        <a href="#al-services">Services,</a>
+        <a href="#al-contact">Contact.</a>
       </div>
-    </div>
+      <a href="mailto:garrvsipani@gmail.com" class="al-nav-inquiries">Inquiries <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
+    </nav>
 
-    <!-- Day Hero -->
-    <section class="day-hero" id="day-hero">
+    <!-- ═══ HERO ═══ -->
+    <section class="al-hero" id="al-hero">
       <canvas id="day-canvas"></canvas>
 
-      <!-- Globe overlay: metrics panel (bottom-left) -->
-      <div class="globe-metrics" id="globe-metrics">
-        <div class="gm-row">
-          <span class="gm-dot gm-dot--red"></span>
-          <span class="gm-label">ACTIVE THREATS</span>
-          <span class="gm-val" id="th-threats">9</span>
-          <span class="gm-arrow gm-arrow--up">&#8593;</span>
-        </div>
-        <div class="gm-row">
-          <span class="gm-dot gm-dot--blue"></span>
-          <span class="gm-label">SYSTEMS MONITORED</span>
-          <span class="gm-val">12,400</span>
-        </div>
-        <div class="gm-row">
-          <span class="gm-dot gm-dot--green"></span>
-          <span class="gm-label">THREATS NEUTRALIZED</span>
-          <span class="gm-val" id="th-neutralized">1,247</span>
-        </div>
-        <div class="gm-row">
-          <span class="gm-dot gm-dot--cyan"></span>
-          <span class="gm-label">STATUS</span>
-          <span class="gm-val gm-val--live">LIVE</span>
-        </div>
-      </div>
+      <!-- Massive flanking section labels -->
+      <a href="#al-experience" class="al-hero-label al-hero-label--left">Work</a>
+      <a href="#al-about" class="al-hero-label al-hero-label--right">About</a>
 
-      <!-- Globe overlay: feed ticker (bottom of globe area) -->
-      <div class="feed-ticker" id="feed-ticker">
-        <div class="feed-track" id="feed-track"></div>
-      </div>
-
-      <!-- Right side hero content -->
-      <div class="day-hero-content">
-        <div class="day-hero-eyebrow">
-          <span class="eyebrow-dot"></span>
-          <span>SYSTEM ONLINE &middot; AI DEFENSE ACTIVE</span>
+      <!-- Featured achievement card (bottom-right) -->
+      <div class="al-case-card">
+        <div class="al-case-card-inner">
+          <span class="al-case-label mono">LATEST ACHIEVEMENT</span>
+          <h4>IEEE Publication</h4>
+          <p>First-author paper on quantum threats to AI security systems.</p>
         </div>
-
-        <h1 class="day-hero-name">GARRV<br/><span class="name-accent">SIPANI</span></h1>
-        <p class="day-hero-role">AI Cybersecurity Consultant</p>
-
-        <div class="hero-typing-wrap">
-          <span class="hero-typing-text" id="hero-typing"></span>
-          <span class="hero-typing-cursor">|</span>
-        </div>
-
-        <blockquote class="day-hero-tagline">
-          &ldquo;When quantum threats emerge,<br/>intelligent defense is non-negotiable.&rdquo;
-        </blockquote>
-
-        <div class="day-hero-cta">
-          <a href="#day-experience" class="btn-day-primary">View Experience &rarr;</a>
-          <a href="#day-contact" class="btn-day-ghost">Secure Your Systems</a>
-        </div>
-
-        <div class="day-hero-stats">
-          <div class="day-stat"><span class="ds-num" data-count="5" data-suffix="+">0</span><span class="ds-label">Years</span></div>
-          <div class="day-stat-div"></div>
-          <div class="day-stat"><span class="ds-num" data-count="3.95">0</span><span class="ds-label">GPA</span></div>
-          <div class="day-stat-div"></div>
-          <div class="day-stat"><span class="ds-num" data-count="11">0</span><span class="ds-label">Certs</span></div>
-          <div class="day-stat-div"></div>
-          <div class="day-stat"><span class="ds-num" data-count="2">0</span><span class="ds-label">Papers</span></div>
-        </div>
+        <a href="https://ieeexplore.ieee.org/document/11393885" target="_blank" rel="noopener" class="al-case-arrow" aria-label="View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </a>
       </div>
 
       <!-- Voice hint -->
-      <div class="day-voice-hint">
-        <span class="vhint-mic">&#x1F3A4;</span>
-        <span>Say <strong>&ldquo;Arise&rdquo;</strong> to enter Researcher mode</span>
+      <div class="al-voice-hint">
+        <span>Say <strong>"Arise"</strong> to enter Researcher mode</span>
       </div>
     </section>
 
-    <!-- About -->
-    <section class="day-section day-section--about" id="day-about">
-      <div class="section-container">
-        <div class="section-label">01 / ABOUT</div>
-        <h2 class="day-section-title">Background</h2>
-        <div class="about-grid">
-          <div class="about-text">
-            <p>Security architect and researcher specializing in AI-augmented cybersecurity. Currently pursuing an MS in Cybersecurity at Johns Hopkins University (GPA 3.95) while serving as Head Cybersecurity Consultant at Quaranta, Australia.</p>
-            <p>My approach combines deep technical expertise in penetration testing and incident response with cutting-edge machine learning to build security systems that don't just detect threats &mdash; they anticipate them.</p>
+    <!-- ═══ EXPERIENCE (Split-scroll like Featured Projects) ═══ -->
+    <section class="al-section al-experience" id="al-experience">
+      <div class="al-exp-grid">
+        <!-- Left: scrolling timeline cards -->
+        <div class="al-exp-cards">
+          <div class="al-exp-card al-exp-card--current">
+            <div class="al-exp-card-top">
+              <span class="al-exp-company mono">QUARANTA</span>
+              <span class="al-exp-date mono">2023 — Present</span>
+            </div>
+            <h3>Head Cybersecurity Consultant</h3>
+            <p class="al-exp-loc">Sydney, Australia</p>
+            <ul>
+              <li>Strategic consulting via NIST &amp; ISO 27001 frameworks</li>
+              <li>Ethical hacking on networks, web apps, and cloud</li>
+              <li>Led incident recovery restoring enterprise operations</li>
+              <li>Linux security + IPSec + Palo Alto firewall deployment</li>
+            </ul>
+            <div class="al-exp-metrics">
+              <span>NIST &amp; ISO 27001</span>
+              <span>Enterprise Recovery</span>
+            </div>
           </div>
-          <div class="about-education">
-            <div class="edu-card">
-              <div class="edu-year">2025&ndash;2026</div>
-              <div class="edu-details">
-                <h3>MS Cybersecurity</h3>
-                <p>Johns Hopkins University &middot; Baltimore, MD</p>
-                <span class="edu-gpa">GPA 3.95</span>
-              </div>
+          <div class="al-exp-card">
+            <div class="al-exp-card-top">
+              <span class="al-exp-company mono">BUZZPENNY SYSTEMS</span>
+              <span class="al-exp-date mono">2024 — Present</span>
             </div>
-            <div class="edu-card">
-              <div class="edu-year">2022&ndash;2024</div>
-              <div class="edu-details">
-                <h3>BSc Cybersecurity</h3>
-                <p>Macquarie University &middot; Sydney, Australia</p>
-              </div>
+            <h3>Cyber Security Analyst</h3>
+            <p class="al-exp-loc">India</p>
+            <ul>
+              <li>Python automation — 40% faster threat detection</li>
+              <li>Vulnerability assessments with Wireshark, Scapy, OCI</li>
+              <li>Reduced system downtime 20%+ via incident response</li>
+            </ul>
+            <div class="al-exp-metrics">
+              <span>40% faster detection</span>
+              <span>20% less downtime</span>
             </div>
+          </div>
+          <div class="al-exp-card">
+            <div class="al-exp-card-top">
+              <span class="al-exp-company mono">QUARANTA.IO</span>
+              <span class="al-exp-date mono">Feb — Apr 2023</span>
+            </div>
+            <h3>Cyber Security Consultant</h3>
+            <p class="al-exp-loc">Sydney</p>
+            <ul>
+              <li>Palo Alto Networks assessments + SIEM monitoring</li>
+              <li>TensorFlow-based risk scoring for NIST/ISO remediation</li>
+              <li>STRIDE threat modeling with neural-network simulation</li>
+            </ul>
+            <div class="al-exp-metrics">
+              <span>SIEM deployment</span>
+              <span>ML risk scoring</span>
+            </div>
+          </div>
+          <div class="al-exp-card">
+            <div class="al-exp-card-top">
+              <span class="al-exp-company mono">REGENT DIGITECH</span>
+              <span class="al-exp-date mono">Jun — Dec 2021</span>
+            </div>
+            <h3>Cyber Security Engineer</h3>
+            <p class="al-exp-loc">India</p>
+            <ul>
+              <li>Palo Alto firewall deployment + Bash automation on OCI</li>
+              <li>Forensic Wireshark analysis — 3 critical incidents identified</li>
+              <li>Vulnerability management and compliance documentation</li>
+            </ul>
+            <div class="al-exp-metrics">
+              <span>3 critical incidents</span>
+              <span>OCI automation</span>
+            </div>
+          </div>
+          <div class="al-exp-card">
+            <div class="al-exp-card-top">
+              <span class="al-exp-company mono">JOHNS HOPKINS UNIVERSITY</span>
+              <span class="al-exp-date mono">2026</span>
+            </div>
+            <h3>Teaching Assistant — Ethical Hacking</h3>
+            <p class="al-exp-loc">Baltimore, MD</p>
+            <ul>
+              <li>Graduate-level Ethical Hacking course instruction</li>
+              <li>Lab design for penetration testing exercises</li>
+            </ul>
           </div>
         </div>
-        <!-- Core competencies -->
-        <h3 class="competencies-title">CORE COMPETENCIES</h3>
-        <div class="competencies-grid">
-          <div class="comp-box">
-            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Threat Detection</span>
-          </div>
-          <div class="comp-box">
-            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            <span>Incident Response</span>
-          </div>
-          <div class="comp-box">
-            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            <span>Post-Quantum Crypto</span>
-          </div>
-          <div class="comp-box">
-            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-            <span>AI/ML Security</span>
-          </div>
-          <div class="comp-box">
-            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            <span>Penetration Testing</span>
-          </div>
-          <div class="comp-box">
-            <svg class="comp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-            <span>Compliance &amp; Audit</span>
-          </div>
+        <!-- Right: sticky header -->
+        <div class="al-exp-header">
+          <span class="al-exp-count">5</span>
+          <h2 class="al-display">Experience</h2>
+          <a href="#al-services" class="al-view-all">
+            <span>View Services</span>
+            <span class="al-view-all-count">6</span>
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- Experience -->
-    <section class="day-section day-section--exp" id="day-experience">
-      <div class="section-container">
-        <div class="section-label">02 / EXPERIENCE</div>
-        <h2 class="day-section-title">Career Timeline</h2>
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
-            <div class="timeline-card tl-card--current">
-              <div class="timeline-header">
-                <div class="tl-header-left">
-                  <div class="tl-company-logo">Q</div>
-                  <div>
-                    <h3>Head Cybersecurity Consultant</h3>
-                    <p class="timeline-company">Quaranta &middot; Australia</p>
-                  </div>
-                </div>
-                <span class="timeline-date">Apr 2023 &ndash; Present</span>
-              </div>
-              <ul>
-                <li>Strategic cybersecurity consulting using NIST &amp; ISO 27001 frameworks</li>
-                <li>Ethical hacking on networks, web apps, and cloud using Burp Suite + Palo Alto</li>
-                <li>Led incident recovery operations restoring enterprise operations</li>
-                <li>Linux security infrastructure + IPSec + Palo Alto firewall deployment</li>
-              </ul>
-              <div class="tl-metrics">
-                <span class="tl-metric">NIST &amp; ISO 27001</span>
-                <span class="tl-metric">Enterprise Recovery</span>
-              </div>
+    <!-- ═══ ABOUT (Editorial text block) ═══ -->
+    <section class="al-section al-about" id="al-about">
+      <div class="al-about-inner">
+        <div class="al-about-text">
+          <p class="al-about-line"><span class="al-about-highlight">Security architect and researcher specializing in AI-augmented cybersecurity.</span></p>
+          <p class="al-about-line"><span class="al-about-highlight">Currently pursuing an MS in Cybersecurity at Johns Hopkins University (GPA 3.95)</span></p>
+          <p class="al-about-line"><span class="al-about-highlight">while serving as Head Cybersecurity Consultant at Quaranta, Australia.</span></p>
+        </div>
+        <div class="al-about-edu">
+          <div class="al-edu-item">
+            <span class="al-edu-year mono">2025 — 2026</span>
+            <div>
+              <h4>MS Cybersecurity</h4>
+              <p>Johns Hopkins University · GPA 3.95</p>
             </div>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
-            <div class="timeline-card">
-              <div class="timeline-header">
-                <div class="tl-header-left">
-                  <div class="tl-company-logo">BP</div>
-                  <div>
-                    <h3>Cyber Security Analyst</h3>
-                    <p class="timeline-company">Buzzpenny Systems LLP &middot; India</p>
-                  </div>
-                </div>
-                <span class="timeline-date">Feb 2024 &ndash; Present</span>
-              </div>
-              <ul>
-                <li>Python automation &mdash; 40% faster threat detection, 2&times; threat response speed</li>
-                <li>Vulnerability assessments with Wireshark, Scapy, and OCI scanning</li>
-                <li>Reduced system downtime 20%+ via coordinated incident response</li>
-              </ul>
-              <div class="tl-metrics">
-                <span class="tl-metric">40% faster detection</span>
-                <span class="tl-metric">20% less downtime</span>
-              </div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
-            <div class="timeline-card">
-              <div class="timeline-header">
-                <div class="tl-header-left">
-                  <div class="tl-company-logo">Q</div>
-                  <div>
-                    <h3>Cyber Security Consultant</h3>
-                    <p class="timeline-company">Quaranta.io &middot; Sydney</p>
-                  </div>
-                </div>
-                <span class="timeline-date">Feb &ndash; Apr 2023</span>
-              </div>
-              <ul>
-                <li>Palo Alto Networks assessments + SIEM monitoring deployments</li>
-                <li>TensorFlow-based risk scoring for NIST/ISO-aligned remediation</li>
-                <li>STRIDE threat modeling with neural-network scenario simulation</li>
-              </ul>
-              <div class="tl-metrics">
-                <span class="tl-metric">SIEM deployment</span>
-                <span class="tl-metric">ML risk scoring</span>
-              </div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
-            <div class="timeline-card">
-              <div class="timeline-header">
-                <div class="tl-header-left">
-                  <div class="tl-company-logo">RD</div>
-                  <div>
-                    <h3>Cyber Security Engineer</h3>
-                    <p class="timeline-company">Regent Digitech &middot; India</p>
-                  </div>
-                </div>
-                <span class="timeline-date">Jun &ndash; Dec 2021</span>
-              </div>
-              <ul>
-                <li>Palo Alto firewall deployment + Bash automation on OCI</li>
-                <li>Forensic Wireshark analysis &mdash; identified 3 critical incidents</li>
-                <li>Vulnerability management and compliance documentation</li>
-              </ul>
-              <div class="tl-metrics">
-                <span class="tl-metric">3 critical incidents</span>
-                <span class="tl-metric">OCI automation</span>
-              </div>
+          <div class="al-edu-item">
+            <span class="al-edu-year mono">2022 — 2024</span>
+            <div>
+              <h4>BSc Cybersecurity</h4>
+              <p>Macquarie University · Sydney</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Skills -->
-    <section class="day-section day-section--skills" id="day-skills">
-      <div class="section-container">
-        <div class="section-label">03 / SKILLS</div>
-        <h2 class="day-section-title">Technical Arsenal</h2>
-        <div class="skills-grid">
-          <div class="skill-category">
-            <div class="skill-cat-header">
-              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <h3>Security Operations</h3>
-            </div>
-            <div class="skill-chips">
-              <span class="chip">Penetration Testing</span>
-              <span class="chip">Vulnerability Assessment</span>
-              <span class="chip">Incident Response</span>
-              <span class="chip">IDS/IPS</span>
-              <span class="chip">SIEM</span>
-              <span class="chip">Threat Modeling</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <div class="skill-cat-header">
-              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-              <h3>Tools &amp; Platforms</h3>
-            </div>
-            <div class="skill-chips">
-              <span class="chip">Palo Alto Networks</span>
-              <span class="chip">Metasploit</span>
-              <span class="chip">Nmap</span>
-              <span class="chip">Wireshark</span>
-              <span class="chip">Burp Suite</span>
-              <span class="chip">Splunk</span>
-              <span class="chip">Scapy</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <div class="skill-cat-header">
-              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-              <h3>Development</h3>
-            </div>
-            <div class="skill-chips">
-              <span class="chip">Python</span>
-              <span class="chip">Linux / Unix</span>
-              <span class="chip">Bash</span>
-              <span class="chip">Docker</span>
-              <span class="chip">Kubernetes</span>
-              <span class="chip">TensorFlow</span>
-              <span class="chip">PyTorch</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <div class="skill-cat-header">
-              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
-              <h3>Cloud &amp; Compliance</h3>
-            </div>
-            <div class="skill-chips">
-              <span class="chip">Oracle Cloud (OCI)</span>
-              <span class="chip">NIST Framework</span>
-              <span class="chip">ISO 27001</span>
-              <span class="chip">STRIDE</span>
-              <span class="chip">Risk Assessment</span>
-            </div>
-          </div>
-          <div class="skill-category skill-category--wide">
-            <div class="skill-cat-header">
-              <svg class="skill-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-              <h3>Research &amp; Publications</h3>
-            </div>
-            <div class="skill-chips">
-              <span class="chip chip--accent">IEEE Xplore &middot; Quantum Computing vs AI Security (2026)</span>
-              <span class="chip chip--accent">arXiv &middot; Quantum Bayesian Inference for IDS (2025)</span>
-            </div>
-          </div>
+    <!-- ═══ SERVICES (Key Services grid — tall cells, Lebedev style) ═══ -->
+    <section class="al-section al-services" id="al-services">
+      <div class="al-services-header">
+        <h2 class="al-display">Threat Detection</h2>
+        <p class="al-services-sub">This is what I specialize in.<br/>Additional capabilities available upon inquiry.</p>
+      </div>
+      <div class="al-services-grid">
+        <div class="al-svc-cell">
+          <div class="al-svc-dot"></div>
+          <span class="al-svc-name">Incident Response</span>
+        </div>
+        <div class="al-svc-cell">
+          <div class="al-svc-dot"></div>
+          <span class="al-svc-name">Post-Quantum Crypto</span>
+        </div>
+        <div class="al-svc-cell">
+          <div class="al-svc-dot"></div>
+          <span class="al-svc-name">AI/ML Security</span>
+        </div>
+        <div class="al-svc-cell">
+          <div class="al-svc-dot"></div>
+          <span class="al-svc-name">Penetration Testing</span>
+        </div>
+        <div class="al-svc-cell">
+          <div class="al-svc-dot"></div>
+          <span class="al-svc-name">Compliance &amp; Audit</span>
+        </div>
+        <div class="al-svc-cell">
+          <div class="al-svc-dot"></div>
+          <span class="al-svc-name">Cloud Security</span>
         </div>
       </div>
     </section>
 
-    <!-- Certifications -->
-    <section class="day-section day-section--certs" id="day-certs">
-      <div class="section-container">
-        <div class="section-label">04 / CERTIFICATIONS</div>
-        <h2 class="day-section-title">Credentials</h2>
-        <div class="certs-grid">
-          <div class="cert-card">
-            <div class="cert-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
-            </div>
-            <h3>Oracle Cloud Architect</h3>
-            <p>Infrastructure Certified Associate</p>
-            <span class="cert-issuer">Oracle &middot; 2025</span>
-          </div>
-          <div class="cert-card">
-            <div class="cert-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
-            </div>
-            <h3>Oracle AI Foundations</h3>
-            <p>AI &amp; ML Certified Associate</p>
-            <span class="cert-issuer">Oracle &middot; 2025&ndash;2027</span>
-          </div>
-          <div class="cert-card">
-            <div class="cert-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
-            </div>
-            <h3>Oracle GenAI Professional</h3>
-            <p>Generative AI Specialist</p>
-            <span class="cert-issuer">Oracle &middot; 2025</span>
-          </div>
-          <div class="cert-card">
-            <div class="cert-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-            </div>
-            <h3>IBM Cybersecurity Series</h3>
-            <p>Networks, Security Essentials, OS Security, Database, Cyberattacks, Governance</p>
-            <span class="cert-issuer">IBM &middot; 2025 (&times;6)</span>
-          </div>
-          <div class="cert-card">
-            <div class="cert-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
-            </div>
-            <h3>Cybersecurity for Business</h3>
-            <p>Advanced Business Security Certification</p>
-            <span class="cert-issuer">University of Colorado Boulder &middot; 2020</span>
-          </div>
+    <!-- ═══ SKILLS (3-column exhibition style) ═══ -->
+    <section class="al-section al-skills" id="al-skills">
+      <h2 class="al-display al-skills-title">Arsenal</h2>
+      <div class="al-skills-cols">
+        <div class="al-skill-col">
+          <h4 class="al-skill-cat-name mono">SECURITY OPS</h4>
+          <ul>
+            <li>Penetration Testing</li>
+            <li>Vulnerability Assessment</li>
+            <li>Incident Response</li>
+            <li>IDS/IPS</li>
+            <li>SIEM</li>
+            <li>Threat Modeling</li>
+          </ul>
+        </div>
+        <div class="al-skill-col">
+          <h4 class="al-skill-cat-name mono">TOOLS &amp; PLATFORMS</h4>
+          <ul>
+            <li>Palo Alto Networks</li>
+            <li>Metasploit</li>
+            <li>Nmap / Wireshark</li>
+            <li>Burp Suite</li>
+            <li>Splunk / Scapy</li>
+            <li>Oracle Cloud (OCI)</li>
+          </ul>
+        </div>
+        <div class="al-skill-col">
+          <h4 class="al-skill-cat-name mono">DEVELOPMENT</h4>
+          <ul>
+            <li>Python / Bash</li>
+            <li>Linux / Unix</li>
+            <li>Docker / Kubernetes</li>
+            <li>TensorFlow / PyTorch</li>
+            <li>FastAPI</li>
+            <li>NIST · ISO 27001</li>
+          </ul>
+        </div>
+      </div>
+      <!-- Certifications row -->
+      <div class="al-certs">
+        <h4 class="al-skill-cat-name mono" style="margin-bottom:1.5rem">CERTIFICATIONS</h4>
+        <div class="al-certs-list">
+          <div class="al-cert">Oracle Cloud Architect<span class="mono">2025</span></div>
+          <div class="al-cert">Oracle AI Foundations<span class="mono">2025</span></div>
+          <div class="al-cert">Oracle GenAI Professional<span class="mono">2025</span></div>
+          <div class="al-cert">IBM Cybersecurity (×6)<span class="mono">2025</span></div>
+          <div class="al-cert">Cybersecurity for Business<span class="mono">2020</span></div>
         </div>
       </div>
     </section>
 
-    <!-- Contact -->
-    <section class="day-section day-section--contact" id="day-contact">
-      <div class="section-container">
-        <div class="section-label">05 / CONTACT</div>
-        <h2 class="day-section-title">Get In Touch</h2>
-        <div class="contact-layout">
-          <form class="contact-form" id="contact-form" onsubmit="return false;">
-            <div class="cf-row">
-              <div class="cf-field">
-                <label for="cf-name">Name</label>
-                <input type="text" id="cf-name" placeholder="Your name" autocomplete="name"/>
-              </div>
-              <div class="cf-field">
-                <label for="cf-email">Email</label>
-                <input type="email" id="cf-email" placeholder="you@company.com" autocomplete="email"/>
-              </div>
-            </div>
-            <div class="cf-row">
-              <div class="cf-field">
-                <label for="cf-company">Company</label>
-                <input type="text" id="cf-company" placeholder="Your organization"/>
-              </div>
-              <div class="cf-field">
-                <label for="cf-urgency">How urgent is your security need?</label>
-                <select id="cf-urgency">
-                  <option value="">Select urgency</option>
-                  <option value="critical">Critical &mdash; Active breach</option>
-                  <option value="high">High &mdash; Imminent threat</option>
-                  <option value="medium">Medium &mdash; Proactive assessment</option>
-                  <option value="low">Low &mdash; General inquiry</option>
-                </select>
-              </div>
-            </div>
-            <div class="cf-field cf-field--full">
-              <label for="cf-message">Message</label>
-              <textarea id="cf-message" rows="4" placeholder="Describe your security requirements..."></textarea>
-            </div>
-            <button type="submit" class="btn-day-primary cf-submit">Send Secure Message &rarr;</button>
-          </form>
-          <div class="contact-social">
-            <a href="mailto:garrvsipani@gmail.com" class="contact-card">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
-              <span>garrvsipani@gmail.com</span>
-            </a>
-            <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" class="contact-card">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-              <span>LinkedIn Profile</span>
-            </a>
-            <a href="https://github.com/garrv105" target="_blank" class="contact-card">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
-              <span>github.com/garrv105</span>
-            </a>
-          </div>
+    <!-- ═══ NEXT section anchor (giant text like Lebedev) ═══ -->
+    <div class="al-next-banner">
+      <a href="#al-contact" class="al-next-label">Next</a>
+      <a href="#al-contact" class="al-next-label">Contact</a>
+    </div>
+
+    <!-- ═══ CONTACT ═══ -->
+    <section class="al-section al-contact" id="al-contact">
+      <div class="al-contact-inner">
+        <div class="al-contact-left">
+          <h2 class="al-display">Get in<br/>touch.</h2>
+        </div>
+        <div class="al-contact-right">
+          <a href="mailto:garrvsipani@gmail.com" class="al-contact-link">
+            <span>garrvsipani@gmail.com</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </a>
+          <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" rel="noopener" class="al-contact-link">
+            <span>LinkedIn</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </a>
+          <a href="https://github.com/garrv105" target="_blank" rel="noopener" class="al-contact-link">
+            <span>GitHub</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </a>
+          <a href="https://ieeexplore.ieee.org/document/11393885" target="_blank" rel="noopener" class="al-contact-link">
+            <span>IEEE Publication</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </a>
         </div>
       </div>
     </section>
 
-    <footer class="day-footer">
-      <p>&copy; 2026 Garrv Sipani &middot; AI Cybersecurity Consultant &middot; Johns Hopkins University</p>
-      <p class="day-footer-hint">Say &ldquo;Arise&rdquo; to explore the other side &#9681; &middot; Press <kbd>`</kbd> to open voice debug panel</p>
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="al-footer">
+      <div class="al-footer-inner">
+        <div class="al-footer-col">
+          <span class="al-footer-label mono">Menu</span>
+          <a href="#al-hero">Home</a>
+          <a href="#al-experience">Work</a>
+          <a href="#al-about">About</a>
+          <a href="#al-services">Services</a>
+          <a href="#al-contact">Contact</a>
+        </div>
+        <div class="al-footer-col">
+          <span class="al-footer-label mono">Social</span>
+          <a href="https://github.com/garrv105" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://linkedin.com/in/garrv-sipani-a05746311" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://ieeexplore.ieee.org/document/11393885" target="_blank" rel="noopener">IEEE Xplore</a>
+          <a href="https://arxiv.org/abs/2507.00403" target="_blank" rel="noopener">arXiv</a>
+        </div>
+        <div class="al-footer-col al-footer-col--wide">
+          <span class="al-footer-label mono">Availability</span>
+          <p>Open to cybersecurity consulting, research collaboration, and speaking engagements. Reach out to discuss your security needs.</p>
+        </div>
+      </div>
+      <div class="al-footer-bottom">
+        <a href="#al-hero" class="al-footer-totop">To top</a>
+        <span>Baltimore &amp; Sydney</span>
+        <span>©2026 Garrv Sipani</span>
+      </div>
     </footer>
+  </div>
+
+
   </div>
 
   <!-- ══════════════════════════════════════════════════
